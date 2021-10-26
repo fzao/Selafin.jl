@@ -1,10 +1,14 @@
 using GLMakie
+using Dates
+
+insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
+
 
 # initialization
-filesizeunit = Dict("Byte" => 1, "KB" => 1024, "MB" => 1048576,
-                    "GB" => 1073741824, "TB" => 1099511627776)
-oksymbol = Char(0x2714)
+filesizeunit = Dict("Byte" => 1, "KB" => 1024, "MB" => 1048576, "GB" => 1073741824, "TB" => 1099511627776)
+oksymbol = Char(0x2713)
 noksymbol = Char(0x274E)
+smallsquare = Char(0x25AA)
 
 # open the Selafin file
 filename = "malpasset.slf"
@@ -32,14 +36,14 @@ else
 end
 intreadbytesize = UInt16(round(readbytesize))
 println("$oksymbol File $filename of size: $intreadbytesize $sizeunit")
-exit()
-
 fid = open(filename, "r")
 
 # read: Title
 rec = ntoh(read(fid, Int32))
 title = String(read(fid, rec))
 rec = ntoh(read(fid, Int32))
+title = lstrip(rstrip(title))
+println("$oksymbol Name of the simulation: $title")
 
 # read: Number of variables
 rec = ntoh(read(fid, Int32))
@@ -60,7 +64,7 @@ end
 # read: Forsegments (10 times 4 bytes is expected)
 fmtid = ntoh(read(fid, Int32))
 if fmtid != 40
-    println("Unknown forsegments for data recording")
+    println("$noksymbol Unknown forsegments for data recording")
     exit(fmtid)
 end
 
@@ -80,9 +84,23 @@ if iparam[10] == 1
     end
     rec = ntoh(read(fid, Int32))
 end
+datehour = DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6])
+println("$oksymbol Event start date and time: $datehour")
 
 # read: Number of layers
 nblayers = iparam[7] != 0 ? iparam[7] : 1
+dimtelemac = nblayers == 1 ? "2D" : "3D"
+println("$oksymbol Telemac $dimtelemac results with $nbvars variables")
+println("$oksymbol Variables are:")
+for i = 1:nbvars
+    if i < 10
+        spacing = "  - "
+    else
+        spacing = " - "
+    end
+    vname = lowercase(lstrip(rstrip(varnames[i])))
+    println("\t$i$spacing$vname")
+end
 
 # read: Mesh info (size)
 rec = ntoh(read(fid, Int32))
@@ -90,11 +108,15 @@ nbtriangles =  ntoh(read(fid, Int32))
 nbnodes =  ntoh(read(fid, Int32))
 nbptelem =  ntoh(read(fid, Int32))
 if nbptelem != 3
-    println("Unknown type of mesh elements")
+    println("$noksymbol Unknown type of mesh elements")
     exit(nbptelem)
 end
 unknown = ntoh(read(fid, Int32))
 rec = ntoh(read(fid, Int32))
+strnbtriangles = commas(nbtriangles)
+strnbnodes = commas(nbnodes)
+println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
+error("stopping")
 
 # read: Mesh info (ikle connectivity)
 rec = ntoh(read(fid, Int32))
