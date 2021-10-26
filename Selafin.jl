@@ -164,15 +164,15 @@ for t in 1:nbsteps
     recloc = ntoh(read(fid, Int32))
     for v in 1:nbvars
         recloc = ntoh(read(fid, Int32))
-        variables[:,v] = [ntoh(read(fid, typefloat)) for i in 1:nbnodes]
+        global variables[:,v] = [ntoh(read(fid, typefloat)) for i in 1:nbnodes]
         recloc = ntoh(read(fid, Int32))
     end
 end
 if nbsteps > 1
     timesteps = timevalue / (nbsteps - 1)
-    println("\r$oksymbol Number of time steps: $nbsteps with "*"$delta"*"t = $timesteps s")
+    println("$oksymbol Number of time steps: $nbsteps with "*"$delta"*"t = $timesteps s")
 else
-    println("\r$oksymbol Number of time steps: $nbsteps")
+    println("$oksymbol Number of time steps: $nbsteps")
 end
 
 
