@@ -3,17 +3,18 @@ using Dates
 
 insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
-
 # initialization
 filesizeunit = Dict("Byte" => 1, "KB" => 1024, "MB" => 1048576, "GB" => 1073741824, "TB" => 1099511627776)
 oksymbol = Char(0x2713)
 noksymbol = Char(0x274E)
 smallsquare = Char(0x25AA)
+delta = Char(0x394)
 
 # open the Selafin file
-filename = "malpasset.slf"
-filename = "mersey.slf"
+#filename = "malpasset.slf"
+#filename = "mersey.slf"
 filename = "girxl2d_result.slf"
+#filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
     error("$noksymbol The file $filename does not exist")
@@ -84,7 +85,12 @@ if iparam[10] == 1
     end
     rec = ntoh(read(fid, Int32))
 end
-datehour = DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6])
+checkdate = idate[1] * idate[2] * idate[3]
+if checkdate == 0
+    datehour = "Unknown"
+else
+    datehour = DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6])
+end
 println("$oksymbol Event start date and time: $datehour")
 
 # read: Number of layers
@@ -113,10 +119,9 @@ if nbptelem != 3
 end
 unknown = ntoh(read(fid, Int32))
 rec = ntoh(read(fid, Int32))
-strnbtriangles = commas(nbtriangles)
-strnbnodes = commas(nbnodes)
+strnbtriangles = insertcommas(nbtriangles)
+strnbnodes = insertcommas(nbnodes)
 println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
-error("stopping")
 
 # read: Mesh info (ikle connectivity)
 rec = ntoh(read(fid, Int32))
@@ -143,16 +148,11 @@ y = [ntoh(read(fid, Float32)) for i in 1:nbnodes]
 rec = ntoh(read(fid, Int32))
 
 # read: Number of time steps
+@time begin
 markposition = mark(fid)
-bytecount = 0
-while true
-    recloc = read(fid, UInt8)
-    global bytecount += 1
-    if eof(fid)
-        break
-    end
-end
+bytecount = bytesize - markposition
 nbsteps = trunc(Int, bytecount / (nbvars * nbnodes * sizeof(typefloat)))
+end
 
 # read: Variables
 reset(fid)
@@ -168,7 +168,14 @@ for t in 1:nbsteps
         recloc = ntoh(read(fid, Int32))
     end
 end
-timesteps = timevalue / (nbsteps - 1)
+if nbsteps > 1
+    timesteps = timevalue / (nbsteps - 1)
+    println("\r$oksymbol Number of time steps: $nbsteps with "*"$delta"*"t = $timesteps s")
+else
+    println("\r$oksymbol Number of time steps: $nbsteps")
+end
+
+
 # close the Selafin file
 close(fid)
 
