@@ -1,9 +1,39 @@
 using GLMakie
 
+# initialization
+filesizeunit = Dict("Byte" => 1, "KB" => 1024, "MB" => 1048576,
+                    "GB" => 1073741824, "TB" => 1099511627776)
+oksymbol = Char(0x2714)
+noksymbol = Char(0x274E)
+
 # open the Selafin file
 filename = "malpasset.slf"
 filename = "mersey.slf"
-byte_size = filesize(filename)
+filename = "girxl2d_result.slf"
+bytesize = filesize(filename)
+if bytesize == 0
+    error("$noksymbol The file $filename does not exist")
+end
+if bytesize < filesizeunit["KB"]
+    readbytesize = bytesize
+    sizeunit = "Byte"
+elseif bytesize < filesizeunit["MB"]
+    readbytesize = bytesize / filesizeunit["KB"]
+    sizeunit = "KB"
+elseif bytesize < filesizeunit["GB"]
+    readbytesize = bytesize / filesizeunit["MB"]
+    sizeunit = "MB"
+elseif bytesize < filesizeunit["TB"]
+    readbytesize = bytesize / filesizeunit["GB"]
+    sizeunit = "GB"
+else
+    readbytesize = bytesize / filesizeunit["TB"]
+    sizeunit = "GB"
+end
+intreadbytesize = UInt16(round(readbytesize))
+println("$oksymbol File $filename of size: $intreadbytesize $sizeunit")
+exit()
+
 fid = open(filename, "r")
 
 # read: Title
@@ -151,8 +181,10 @@ for i in 1:segmentsize
     global k += 1
 end
 
-@time lines(ptx, pty)
-#=     plot(ptx,pty, legend = false, 
+# plot
+scene = lines(ptx, pty)
+display(scene)
+#=     plot(ptx,pty, legend = false,
            xlabel = "x-coordinates (m)",
            ylabel = "y-coordinates (m)",
            title = "Mesh with $nbtriangles triangles and $nbnodes nodes") =#
