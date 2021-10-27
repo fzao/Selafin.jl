@@ -14,8 +14,8 @@ superscripttwo = Char(0x00B2)
 
 # open the Selafin file
 #filename = "malpasset.slf"
-#filename = "mersey.slf"
-filename = "girxl2d_result.slf"
+filename = "mersey.slf"
+#filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
@@ -193,7 +193,7 @@ end
 area = round(area * 0.5e-6, digits = 2)
 println("$oksymbol Study area surface: $area km$superscripttwo")
 
-# plot: Mesh
+# Mesh: get all segments
 ikle2 = sort(ikle, dims = 2)
 segments = Array{Tuple{Int32, Int32}}(undef, nbtriangles*3, 1)
 k = 1
@@ -205,6 +205,7 @@ for t in 1:nbtriangles
     segments[k] = (ikle2[t,2],ikle2[t,3])
     global k += 1
 end
+segsave = segments
 segments = unique(segments, dims=1)
 segmentsize = size(segments)[1]
 ptx = Array{Float32, 1}(undef, 3*segmentsize)
@@ -224,10 +225,32 @@ for i in 1:segmentsize
     global k += 1
 end
 
+# Mesh: get boundary segments
+segsegcount = [(i, count(==(i), segsave)) for i in segsave]
+segunique = [segsegcount[i][1] for i in 1:size(segsegcount)[1] if segsegcount[i][2]==1]
+segmentsize = size(segunique)[1]
+ptx = Array{Float32, 1}(undef, 3*segmentsize)
+pty = Array{Float32, 1}(undef, 3*segmentsize)
+k = 1
+for i in 1:segmentsize
+    pt1 = segunique[i][1]
+    pt2 = segunique[i][2]
+    ptx[k] = x[pt1]
+    pty[k] = y[pt1]
+    global k += 1
+    ptx[k] = x[pt2]
+    pty[k] = y[pt2]
+    global k += 1
+    ptx[k] = NaN
+    pty[k] = NaN
+    global k += 1
+end
+
 # plot
 scene = lines(ptx, pty)
 display(scene)
 #=     plot(ptx,pty, legend = false,
+
            xlabel = "x-coordinates (m)",
            ylabel = "y-coordinates (m)",
            title = "Mesh with $nbtriangles triangles and $nbnodes nodes") =#
