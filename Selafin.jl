@@ -12,8 +12,8 @@ delta = Char(0x394)
 
 # open the Selafin file
 #filename = "malpasset.slf"
-#filename = "mersey.slf"
-filename = "girxl2d_result.slf"
+filename = "mersey.slf"
+#filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
@@ -148,19 +148,17 @@ y = [ntoh(read(fid, Float32)) for i in 1:nbnodes]
 rec = ntoh(read(fid, Int32))
 
 # read: Number of time steps
-@time begin
 markposition = mark(fid)
 bytecount = bytesize - markposition
 nbsteps = trunc(Int, bytecount / (nbvars * nbnodes * sizeof(typefloat)))
-end
 
 # read: Variables
 reset(fid)
 variables = Array{typefloat, 2}(undef, nbnodes, nbvars)
-timevalue = Float32(0)
+timevalue =  Array{Float32, 1}(undef, nbsteps)
 for t in 1:nbsteps
     recloc = ntoh(read(fid, Int32))
-    global timevalue = ntoh(read(fid, Float32))
+    global timevalue[t] = ntoh(read(fid, Float32))
     recloc = ntoh(read(fid, Int32))
     for v in 1:nbvars
         recloc = ntoh(read(fid, Int32))
@@ -169,7 +167,7 @@ for t in 1:nbsteps
     end
 end
 if nbsteps > 1
-    timesteps = timevalue / (nbsteps - 1)
+    timesteps = timevalue[2] - timevalue[1]
     println("$oksymbol Number of time steps: $nbsteps with "*"$delta"*"t = $timesteps s")
 else
     println("$oksymbol Number of time steps: $nbsteps")
