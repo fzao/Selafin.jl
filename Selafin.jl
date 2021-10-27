@@ -11,8 +11,8 @@ smallsquare = Char(0x25AA)
 delta = Char(0x394)
 
 # open the Selafin file
-#filename = "malpasset.slf"
-filename = "mersey.slf"
+filename = "malpasset.slf"
+#filename = "mersey.slf"
 #filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 bytesize = filesize(filename)
@@ -163,7 +163,9 @@ for t in 1:nbsteps
     recloc = ntoh(read(fid, Int32))
     for v in 1:nbvars
         recloc = ntoh(read(fid, Int32))
-        global variables[:,v] = [ntoh(read(fid, typefloat)) for i in 1:nbnodes]
+        raw_data = zeros(UInt8, recloc)
+        readbytes!(fid, raw_data, recloc)
+        global variables[:,v] .= ntoh.(reinterpret(typefloat, raw_data))
         recloc = ntoh(read(fid, Int32))
     end
 end
