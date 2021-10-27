@@ -1,5 +1,6 @@
 using GLMakie
 using Dates
+using BenchmarkTools
 
 insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -9,11 +10,12 @@ oksymbol = Char(0x2713)
 noksymbol = Char(0x274E)
 smallsquare = Char(0x25AA)
 delta = Char(0x394)
+superscripttwo = Char(0x00B2)
 
 # open the Selafin file
-filename = "malpasset.slf"
+#filename = "malpasset.slf"
 #filename = "mersey.slf"
-#filename = "girxl2d_result.slf"
+filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
@@ -179,6 +181,17 @@ end
 
 # close the Selafin file
 close(fid)
+
+# domain description
+area = 0.
+for t in 1:nbtriangles
+    pt1 = ikle[t, 1]
+    pt2 = ikle[t, 2]
+    pt3 = ikle[t, 3]
+    global area += abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
+end
+area = round(area * 0.5e-6, digits = 2)
+println("$oksymbol Study area surface: $area km$superscripttwo")
 
 # plot: Mesh
 ikle2 = sort(ikle, dims = 2)
