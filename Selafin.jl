@@ -46,12 +46,12 @@ rec = ntoh(read(fid, Int32))
 title = lstrip(rstrip(title))
 println("$oksymbol Name of the simulation: $title")
 
-# read: Number of variables
+# read: Number of variables (tri)
 rec = ntoh(read(fid, Int32))
 nbvars = ntoh(read(fid, Int32))
 
-# read: Number of xvar
-nbxvar = ntoh(read(fid, Int32))
+# read: Number of variables (quad)
+nbqvars = ntoh(read(fid, Int32))
 rec = ntoh(read(fid, Int32))
 
 # read: Variable names
@@ -78,14 +78,15 @@ fmtid = ntoh(read(fid, Int32))
 
 # read: Date
 idate = Int32[]
+checkdate = 0
 if iparam[10] == 1
     rec = ntoh(read(fid, Int32))
     for i in 1:6
         push!(idate, ntoh(read(fid, Int32)))
     end
     rec = ntoh(read(fid, Int32))
+    checkdate = idate[1] * idate[2] * idate[3]
 end
-checkdate = idate[1] * idate[2] * idate[3]
 if checkdate == 0
     datehour = "Unknown"
 else
