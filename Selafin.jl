@@ -1,6 +1,8 @@
 using GLMakie
 using Dates
 using BenchmarkTools
+include("./Norm2.jl")
+using .Norm2
 
 insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -191,7 +193,6 @@ for t in 1:nbtriangles
     global area += abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
 end
 area = round(area * 0.5e-6, digits = 2)
-println("$oksymbol Study area surface: $area km$superscripttwo")
 
 # Mesh: get all segments
 ikle2 = sort(ikle, dims = 2)
@@ -246,9 +247,18 @@ for i in 1:segmentsize
     global k += 1
 end
 
+# Mesh; get the perimeter value
+perimeter = 0.
+for s in 1:segmentsize
+    pt1 = segunique[s][1]
+    pt2 = segunique[s][2]
+    global perimeter += distance(x[pt1], y[pt1], x[pt2], y[pt2])
+end
+perimeter = round(perimeter * 1e-3, digits = 1)
+println("$oksymbol Study area surface: $area km$superscripttwo and perimeter: $perimeter km")
 # plot
-scene = lines(ptx, pty)
-display(scene)
+#scene = lines(ptx, pty)
+#display(scene)
 #=     plot(ptx,pty, legend = false,
 
            xlabel = "x-coordinates (m)",
