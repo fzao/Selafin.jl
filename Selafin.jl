@@ -2,7 +2,6 @@ using GLMakie
 using Dates
 using BenchmarkTools
 include("./Norm2.jl")
-using .Norm2
 
 insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -16,7 +15,8 @@ superscripttwo = Char(0x00B2)
 
 # open the Selafin file
 #filename = "malpasset.slf"
-filename = "mersey.slf"
+#filename = "mersey.slf"
+filename = "Alderney_sea_level.slf"
 #filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 bytesize = filesize(filename)
@@ -130,14 +130,14 @@ println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbno
 
 # read: Mesh info (ikle connectivity)
 rec = ntoh(read(fid, Int32))
-ikle = zeros(nbptelem, nbtriangles)
+ikle = zeros(Int32, nbptelem, nbtriangles)
 ikle = [ntoh(read(fid, Int32)) for i in 1:nbptelem, j in 1:nbtriangles]
 ikle = transpose(ikle)
 rec = ntoh(read(fid, Int32))
 
 # read: Mesh info (ipobo boundary nodes)
 rec = ntoh(read(fid, Int32))
-ipobo = zeros(nbnodes)
+ipobo = zeros(Int32, nbnodes)
 ipobo = [ntoh(read(fid, Int32)) for i in 1:nbnodes]
 rec = ntoh(read(fid, Int32))
 
@@ -209,41 +209,41 @@ end
 segsave = segments
 segments = unique(segments, dims=1)
 segmentsize = size(segments)[1]
-ptx = Array{Float32, 1}(undef, 3*segmentsize)
-pty = Array{Float32, 1}(undef, 3*segmentsize)
+ptxall = Array{Float32, 1}(undef, 3*segmentsize)
+ptyall = Array{Float32, 1}(undef, 3*segmentsize)
 k = 1
 for i in 1:segmentsize
     pt1 = segments[i][1]
     pt2 = segments[i][2]
-    ptx[k] = x[pt1]
-    pty[k] = y[pt1]
+    ptxall[k] = x[pt1]
+    ptyall[k] = y[pt1]
     global k += 1
-    ptx[k] = x[pt2]
-    pty[k] = y[pt2]
+    ptxall[k] = x[pt2]
+    ptyall[k] = y[pt2]
     global k += 1
-    ptx[k] = NaN
-    pty[k] = NaN
+    ptxall[k] = NaN
+    ptyall[k] = NaN
     global k += 1
 end
 
 # Mesh: get boundary segments
-segsegcount = [(i, count(==(i), segsave)) for i in segsave]
-segunique = [segsegcount[i][1] for i in 1:size(segsegcount)[1] if segsegcount[i][2]==1]
+segcount = [(i, count(==(i), segsave)) for i in segsave]
+segunique = [segcount[i][1] for i in 1:size(segcount)[1] if segcount[i][2]==1]
 segmentsize = size(segunique)[1]
-ptx = Array{Float32, 1}(undef, 3*segmentsize)
-pty = Array{Float32, 1}(undef, 3*segmentsize)
+ptxbnd = Array{Float32, 1}(undef, 3*segmentsize)
+ptybnd = Array{Float32, 1}(undef, 3*segmentsize)
 k = 1
 for i in 1:segmentsize
     pt1 = segunique[i][1]
     pt2 = segunique[i][2]
-    ptx[k] = x[pt1]
-    pty[k] = y[pt1]
+    ptxbnd[k] = x[pt1]
+    ptybnd[k] = y[pt1]
     global k += 1
-    ptx[k] = x[pt2]
-    pty[k] = y[pt2]
+    ptxbnd[k] = x[pt2]
+    ptybnd[k] = y[pt2]
     global k += 1
-    ptx[k] = NaN
-    pty[k] = NaN
+    ptxbnd[k] = NaN
+    ptybnd[k] = NaN
     global k += 1
 end
 
@@ -252,13 +252,23 @@ perimeter = 0.
 for s in 1:segmentsize
     pt1 = segunique[s][1]
     pt2 = segunique[s][2]
-    global perimeter += distance(x[pt1], y[pt1], x[pt2], y[pt2])
+    global perimeter += Norm2.distance(x[pt1], y[pt1], x[pt2], y[pt2])
 end
 perimeter = round(perimeter * 1e-3, digits = 1)
 println("$oksymbol Study area surface: $area km$superscripttwo and perimeter: $perimeter km")
+
 # plot
-#scene = lines(ptx, pty)
-#display(scene)
+fig = Figure()
+ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
+ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
+ax1.title = "Mesh ($strnbtriangles triangles)"
+ax2.title = "Boundary ($perimeter km)"
+ax1.xlabel = "x-coordinates (m)"
+ax2.xlabel = "x-coordinates (m)"
+ax1.ylabel = "y-coordinates (m)"
+ax2.ylabel = "y-coordinates (m)"
+display(fig)
+
 #=     plot(ptx,pty, legend = false,
 
            xlabel = "x-coordinates (m)",
