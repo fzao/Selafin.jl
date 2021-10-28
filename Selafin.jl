@@ -186,11 +186,13 @@ close(fid)
 
 # domain description
 area = 0.
+triarea = Array{typefloat, 1}(undef, nbtriangles)
 for t in 1:nbtriangles
     pt1 = ikle[t, 1]
     pt2 = ikle[t, 2]
     pt3 = ikle[t, 3]
-    global area += abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
+    triarea[t] = abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
+    global area += triarea[t]
 end
 area = round(area * 0.5e-6, digits = 2)
 
