@@ -1,7 +1,7 @@
 using GLMakie
 using Dates
 using BenchmarkTools
-include("./Norm2.jl")
+include("./Distance.jl")
 
 insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -12,6 +12,8 @@ noksymbol = Char(0x274E)
 smallsquare = Char(0x25AA)
 delta = Char(0x394)
 superscripttwo = Char(0x00B2)
+eps = 1.e-6
+minqualval = 0.5
 
 # open the Selafin file
 #filename = "malpasset.slf"
@@ -185,16 +187,28 @@ end
 # close the Selafin file
 close(fid)
 
-# domain description
+# Mesh: domain description and quality
 area = 0.
 triarea = Array{typefloat, 1}(undef, nbtriangles)
+triquality = Array{typefloat, 1}(undef, nbtriangles)
+cte = 4 * sqrt(3)
 for t in 1:nbtriangles
     pt1 = ikle[t, 1]
     pt2 = ikle[t, 2]
     pt3 = ikle[t, 3]
-    triarea[t] = abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
+    global triarea[t] = 0.5 * abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
     global area += triarea[t]
+    divlen = Distance.euclidean2(x[pt1], y[pt1], x[pt2], y[pt2]) +
+             Distance.euclidean2(x[pt1], y[pt1], x[pt3], y[pt3]) +
+             Distance.euclidean2(x[pt2], y[pt2], x[pt3], y[pt3])
+    global triquality[t] = divlen > eps ? cte * triarea[t] / divlen : 0.
 end
+babqualnumber = count(<(minqualval), triquality)
+badqualind = findall(triquality .< minqualval)
+badqualval = triquality[badqualind]
+minqual = round(minimum(triquality), digits = 2)
+meanqual = round(mean(triquality), digits = 2)
+maxqual = round(maximum(triquality), digits = 2)
 area = round(area * 0.5e-6, digits = 2)
 
 # Mesh: get all segments
@@ -255,7 +269,7 @@ perimeter = 0.
 for s in 1:segmentsize
     pt1 = segunique[s][1]
     pt2 = segunique[s][2]
-    global perimeter += Norm2.distance(x[pt1], y[pt1], x[pt2], y[pt2])
+    global perimeter += Distance.euclidean(x[pt1], y[pt1], x[pt2], y[pt2])
 end
 perimeter = round(perimeter * 1e-3, digits = 1)
 println("$oksymbol Study area surface: $area km$superscripttwo and perimeter: $perimeter km")
@@ -270,6 +284,19 @@ ax1.xlabel = "x-coordinates (m)"
 ax2.xlabel = "x-coordinates (m)"
 ax1.ylabel = "y-coordinates (m)"
 ax2.ylabel = "y-coordinates (m)"
+if babqualnumber > 0
+    ax3, l3 = hist(fig[2, 1], triquality)
+    ax4, l4 = hist(fig[2, 2], badqualval, color = :red)
+    ax4.title = "Bad triangles: $babqualnumber"
+    ax4.xlabel = "Mesh quality"
+    ax4.ylabel = "Frequency"
+else
+    ax3, l3 = hist(fig[2, 1:2], triquality)
+end
+ax3.title = "Min: $minqual, Mean: $meanqual, Max:$maxqual"
+ax3.xlabel = "Mesh quality"
+ax3.ylabel = "Frequency"
+
 display(fig)
 
 #=     plot(ptx,pty, legend = false,
