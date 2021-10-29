@@ -16,9 +16,10 @@ superscripttwo = Char(0x00B2)
 # open the Selafin file
 #filename = "malpasset.slf"
 #filename = "mersey.slf"
-filename = "Alderney_sea_level.slf"
+#filename = "Alderney_sea_level.slf"
+#filename = "Alderney.slf"
 #filename = "girxl2d_result.slf"
-#filename = "a9.slf"
+filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
     error("$noksymbol The file $filename does not exist")
@@ -155,7 +156,7 @@ rec = ntoh(read(fid, Int32))
 # read: Number of time steps
 markposition = mark(fid)
 bytecount = bytesize - markposition
-nbsteps = trunc(Int, bytecount / (nbvars * nbnodes * sizeof(typefloat)))
+nbsteps = trunc(Int, bytecount / (nbvars * nbnodes * sizeof(typefloat) + 8 * nbvars +8))
 
 # read: Variables
 reset(fid)
