@@ -1,27 +1,21 @@
 using GLMakie
 using Dates
 using BenchmarkTools
-include("./Distance.jl")
+#= include("./Distance.jl")
+include("./Utils.jl")
+include("./Parameters.jl") =#
+using .Distance
+using .Utils
+using .Parameters
 
-insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
-
-# initialization
-filesizeunit = Dict("Byte" => 1, "KB" => 1024, "MB" => 1048576, "GB" => 1073741824, "TB" => 1099511627776)
-oksymbol = Char(0x2713)
-noksymbol = Char(0x274E)
-smallsquare = Char(0x25AA)
-delta = Char(0x394)
-superscripttwo = Char(0x00B2)
-eps = 1.e-6
-minqualval = 0.5
 
 # open the Selafin file
 #filename = "malpasset.slf"
-#filename = "mersey.slf"
+filename = "mersey.slf"
 #filename = "Alderney_sea_level.slf"
 #filename = "Alderney.slf"
 #filename = "girxl2d_result.slf"
-filename = "a9.slf"
+#filename = "a9.slf"
 bytesize = filesize(filename)
 if bytesize == 0
     error("$noksymbol The file $filename does not exist")
@@ -201,10 +195,10 @@ for t in 1:nbtriangles
     divlen = Distance.euclidean2(x[pt1], y[pt1], x[pt2], y[pt2]) +
              Distance.euclidean2(x[pt1], y[pt1], x[pt3], y[pt3]) +
              Distance.euclidean2(x[pt2], y[pt2], x[pt3], y[pt3])
-    triquality[t] = divlen > eps ? cte * triarea[t] / divlen : 0.
+    triquality[t] = divlen > Parameters.eps ? cte * triarea[t] / divlen : 0.
 end
-badqualnumber = count(<(minqualval), triquality)
-badqualind = findall(triquality .< minqualval)
+badqualnumber = count(<(Parameters.minqualval), triquality)
+badqualind = findall(triquality .< Parameters.minqualval)
 badqualval = triquality[badqualind]
 minqual = round(minimum(triquality), digits = 2)
 meanqual = round(mean(triquality), digits = 2)
@@ -317,7 +311,7 @@ for s in 1:segmentsize
     global perimeter += Distance.euclidean(x[pt1], y[pt1], x[pt2], y[pt2])
 end
 perimeter = round(perimeter * 1e-3, digits = 1)
-println("$oksymbol Study area surface: $area km$superscripttwo and perimeter: $perimeter km")
+println("$oksymbol Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
 
 # plot
 fig = Figure()
