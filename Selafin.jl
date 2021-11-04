@@ -1,24 +1,26 @@
 using GLMakie
 using Dates
 using BenchmarkTools
-#= include("./Distance.jl")
+include("./Distance.jl")
 include("./Utils.jl")
-include("./Parameters.jl") =#
+include("./Parameters.jl")
+include("./Model.jl")
 using .Distance
 using .Utils
 using .Parameters
+using .Model
 
 
 # open the Selafin file
-#filename = "malpasset.slf"
-filename = "mersey.slf"
-#filename = "Alderney_sea_level.slf"
-#filename = "Alderney.slf"
-#filename = "girxl2d_result.slf"
-#filename = "a9.slf"
-bytesize = filesize(filename)
+sel_filename = "malpasset.slf"
+#sel_filename = "mersey.slf"
+#sel_filename = "Alderney_sea_level.slf"
+#sel_filename = "Alderney.slf"
+#sel_filename = "girxl2d_result.slf"
+# sel_filename = "a9.slf"
+bytesize = filesize(sel_filename)
 if bytesize == 0
-    error("$noksymbol The file $filename does not exist")
+    error("$noksymbol The file $(sel_filename) does not exist")
 end
 if bytesize < filesizeunit["KB"]
     readbytesize = bytesize
@@ -37,137 +39,137 @@ else
     sizeunit = "GB"
 end
 intreadbytesize = UInt16(round(readbytesize))
-println("$oksymbol File $filename of size: $intreadbytesize $sizeunit")
-fid = open(filename, "r")
+println("$oksymbol File $sel_filename of size: $intreadbytesize $sizeunit")
+sel_fid = open(sel_filename, "r")
 
 # read: Title
-rec = ntoh(read(fid, Int32))
-title = String(read(fid, rec))
-rec = ntoh(read(fid, Int32))
-title = lstrip(rstrip(title))
-println("$oksymbol Name of the simulation: $title")
+rec = ntoh(read(sel_fid, Int32))
+sel_title = String(read(sel_fid, rec))
+rec = ntoh(read(sel_fid, Int32))
+sel_title = lstrip(rstrip(sel_title))
+println("$oksymbol Name of the simulation: $sel_title")
 
 # read: Number of variables (tri)
-rec = ntoh(read(fid, Int32))
-nbvars = ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
+sel_nbvars = ntoh(read(sel_fid, Int32))
 
 # read: Number of variables (quad)
-nbqvars = ntoh(read(fid, Int32))
-rec = ntoh(read(fid, Int32))
+nbqvars = ntoh(read(sel_fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 
 # read: Variable names
-varnames = String[]
-for i in 1:nbvars
-    localrec = ntoh(read(fid, Int32))
-    push!(varnames, String(read(fid, localrec)))
-    localrec = ntoh(read(fid, Int32))
+sel_varnames = String[]
+for i in 1:sel_nbvars
+    localrec = ntoh(read(sel_fid, Int32))
+    push!(sel_varnames, String(read(sel_fid, localrec)))
+    localrec = ntoh(read(sel_fid, Int32))
 end
 
 # read: Forsegments (10 times 4 bytes is expected)
-fmtid = ntoh(read(fid, Int32))
+fmtid = ntoh(read(sel_fid, Int32))
 if fmtid != 40
     println("$noksymbol Unknown forsegments for data recording")
     exit(fmtid)
 end
 
 # read: Integer parameters
-iparam = Int32[]
+sel_iparam = Int32[]
 for i in 1:10
-    push!(iparam, ntoh(read(fid, Int32)))
+    push!(sel_iparam, ntoh(read(sel_fid, Int32)))
 end
-fmtid = ntoh(read(fid, Int32))
+fmtid = ntoh(read(sel_fid, Int32))
 
 # read: Date
 idate = Int32[]
 checkdate = 0
-if iparam[10] == 1
-    rec = ntoh(read(fid, Int32))
+if sel_iparam[10] == 1
+    rec = ntoh(read(sel_fid, Int32))
     for i in 1:6
-        push!(idate, ntoh(read(fid, Int32)))
+        push!(idate, ntoh(read(sel_fid, Int32)))
     end
-    rec = ntoh(read(fid, Int32))
+    rec = ntoh(read(sel_fid, Int32))
     checkdate = idate[1] * idate[2] * idate[3]
 end
 if checkdate == 0
     datehour = "Unknown"
 else
-    datehour = DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6])
+    datehour = Dates.format(DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6]), "yyyy-mm-dd HH:MM:SS")
 end
 println("$oksymbol Event start date and time: $datehour")
 
 # read: Number of layers
-nblayers = iparam[7] != 0 ? iparam[7] : 1
+nblayers = sel_iparam[7] != 0 ? sel_iparam[7] : 1
 dimtelemac = nblayers == 1 ? "2D" : "3D"
-println("$oksymbol Telemac $dimtelemac results with $nbvars variables")
+println("$oksymbol Telemac $dimtelemac results with $sel_nbvars variables")
 println("$oksymbol Variables are:")
-for i = 1:nbvars
+for i = 1:sel_nbvars
     if i < 10
         spacing = "  - "
     else
         spacing = " - "
     end
-    vname = lowercase(lstrip(rstrip(varnames[i])))
+    vname = lowercase(lstrip(rstrip(sel_varnames[i])))
     println("\t$i$spacing$vname")
 end
 
 # read: Mesh info (size)
-rec = ntoh(read(fid, Int32))
-nbtriangles =  ntoh(read(fid, Int32))
-nbnodes =  ntoh(read(fid, Int32))
-nbptelem =  ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
+nbtriangles =  ntoh(read(sel_fid, Int32))
+nbnodes =  ntoh(read(sel_fid, Int32))
+nbptelem =  ntoh(read(sel_fid, Int32))
 if nbptelem != 3
     println("$noksymbol Unknown type of mesh elements")
     exit(nbptelem)
 end
-unknown = ntoh(read(fid, Int32))
-rec = ntoh(read(fid, Int32))
+unknown = ntoh(read(sel_fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 strnbtriangles = insertcommas(nbtriangles)
 strnbnodes = insertcommas(nbnodes)
 println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
 
 # read: Mesh info (ikle connectivity)
-rec = ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 ikle = zeros(Int32, nbptelem, nbtriangles)
-ikle = [ntoh(read(fid, Int32)) for i in 1:nbptelem, j in 1:nbtriangles]
+ikle = [ntoh(read(sel_fid, Int32)) for i in 1:nbptelem, j in 1:nbtriangles]
 ikle = transpose(ikle)
-rec = ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 
 # read: Mesh info (ipobo boundary nodes)
-rec = ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 ipobo = zeros(Int32, nbnodes)
-ipobo = [ntoh(read(fid, Int32)) for i in 1:nbnodes]
-rec = ntoh(read(fid, Int32))
+ipobo = [ntoh(read(sel_fid, Int32)) for i in 1:nbnodes]
+rec = ntoh(read(sel_fid, Int32))
 
 # read: Mesh info (xy coordinates)
-rec = ntoh(read(fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 typefloat = nbnodes * 4 == rec ? Float32 : Float64
 x = Array{typefloat, 1}(undef, nbnodes)
-x = [ntoh(read(fid, typefloat)) for i in 1:nbnodes]
-rec = ntoh(read(fid, Int32))
-rec = ntoh(read(fid, Int32))
+x = [ntoh(read(sel_fid, typefloat)) for i in 1:nbnodes]
+rec = ntoh(read(sel_fid, Int32))
+rec = ntoh(read(sel_fid, Int32))
 y = Array{typefloat, 1}(undef, nbnodes)
-y = [ntoh(read(fid, Float32)) for i in 1:nbnodes]
-rec = ntoh(read(fid, Int32))
+y = [ntoh(read(sel_fid, Float32)) for i in 1:nbnodes]
+rec = ntoh(read(sel_fid, Int32))
 
 # read: Number of time steps
-markposition = mark(fid)
+markposition = mark(sel_fid)
 bytecount = bytesize - markposition
-nbsteps = trunc(Int, bytecount / (nbvars * nbnodes * sizeof(typefloat) + 8 * nbvars +8))
+nbsteps = trunc(Int, bytecount / (sel_nbvars * nbnodes * sizeof(typefloat) + 8 * sel_nbvars +8))
 
 # read: Variables
-reset(fid)
-variables = Array{typefloat, 2}(undef, nbnodes, nbvars)
+reset(sel_fid)
+variables = Array{typefloat, 2}(undef, nbnodes, sel_nbvars)
 timevalue =  Array{Float32, 1}(undef, nbsteps)
 for t in 1:nbsteps
-    recloc = ntoh(read(fid, Int32))
-    timevalue[t] = ntoh(read(fid, Float32))
-    recloc = ntoh(read(fid, Int32))
-    for v in 1:nbvars
-        recloc = ntoh(read(fid, Int32))
+    recloc = ntoh(read(sel_fid, Int32))
+    timevalue[t] = ntoh(read(sel_fid, Float32))
+    recloc = ntoh(read(sel_fid, Int32))
+    for v in 1:sel_nbvars
+        recloc = ntoh(read(sel_fid, Int32))
         raw_data = zeros(UInt8, recloc)
-        readbytes!(fid, raw_data, recloc)
+        readbytes!(sel_fid, raw_data, recloc)
         variables[:,v] .= ntoh.(reinterpret(typefloat, raw_data))
-        recloc = ntoh(read(fid, Int32))
+        recloc = ntoh(read(sel_fid, Int32))
     end
 end
 if nbsteps > 1
@@ -179,7 +181,7 @@ end
 
 
 # close the Selafin file
-close(fid)
+close(sel_fid)
 
 # Mesh: domain description and quality
 area = 0.
