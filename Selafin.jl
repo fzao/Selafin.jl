@@ -80,26 +80,26 @@ end
 fmtid = ntoh(read(sel_fid, Int32))
 
 # read: Date
-idate = Int32[]
+sel_idate = Int32[]
 checkdate = 0
 if sel_iparam[10] == 1
     rec = ntoh(read(sel_fid, Int32))
     for i in 1:6
-        push!(idate, ntoh(read(sel_fid, Int32)))
+        push!(sel_idate, ntoh(read(sel_fid, Int32)))
     end
     rec = ntoh(read(sel_fid, Int32))
-    checkdate = idate[1] * idate[2] * idate[3]
+    checkdate = sel_idate[1] * sel_idate[2] * sel_idate[3]
 end
 if checkdate == 0
     datehour = "Unknown"
 else
-    datehour = Dates.format(DateTime(idate[1], idate[2], idate[3], idate[4], idate[5], idate[6]), "yyyy-mm-dd HH:MM:SS")
+    datehour = Dates.format(DateTime(sel_idate[1], sel_idate[2], sel_idate[3], sel_idate[4], sel_idate[5], sel_idate[6]), "yyyy-mm-dd HH:MM:SS")
 end
 println("$oksymbol Event start date and time: $datehour")
 
 # read: Number of layers
-nblayers = sel_iparam[7] != 0 ? sel_iparam[7] : 1
-dimtelemac = nblayers == 1 ? "2D" : "3D"
+sel_nblayers = sel_iparam[7] != 0 ? sel_iparam[7] : 1
+dimtelemac = sel_nblayers == 1 ? "2D" : "3D"
 println("$oksymbol Telemac $dimtelemac results with $sel_nbvars variables")
 println("$oksymbol Variables are:")
 for i = 1:sel_nbvars
@@ -114,8 +114,8 @@ end
 
 # read: Mesh info (size)
 rec = ntoh(read(sel_fid, Int32))
-nbtriangles =  ntoh(read(sel_fid, Int32))
-nbnodes =  ntoh(read(sel_fid, Int32))
+sel_nbtriangles =  ntoh(read(sel_fid, Int32))
+sel_nbnodes =  ntoh(read(sel_fid, Int32))
 nbptelem =  ntoh(read(sel_fid, Int32))
 if nbptelem != 3
     println("$noksymbol Unknown type of mesh elements")
@@ -123,42 +123,42 @@ if nbptelem != 3
 end
 unknown = ntoh(read(sel_fid, Int32))
 rec = ntoh(read(sel_fid, Int32))
-strnbtriangles = insertcommas(nbtriangles)
-strnbnodes = insertcommas(nbnodes)
+strnbtriangles = insertcommas(sel_nbtriangles)
+strnbnodes = insertcommas(sel_nbnodes)
 println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
 
 # read: Mesh info (ikle connectivity)
 rec = ntoh(read(sel_fid, Int32))
-ikle = zeros(Int32, nbptelem, nbtriangles)
-ikle = [ntoh(read(sel_fid, Int32)) for i in 1:nbptelem, j in 1:nbtriangles]
-ikle = transpose(ikle)
+sel_ikle = zeros(Int32, nbptelem, sel_nbtriangles)
+sel_ikle = [ntoh(read(sel_fid, Int32)) for i in 1:nbptelem, j in 1:sel_nbtriangles]
+sel_ikle = transpose(sel_ikle)
 rec = ntoh(read(sel_fid, Int32))
 
 # read: Mesh info (ipobo boundary nodes)
 rec = ntoh(read(sel_fid, Int32))
 ipobo = zeros(Int32, nbnodes)
-ipobo = [ntoh(read(sel_fid, Int32)) for i in 1:nbnodes]
+ipobo = [ntoh(read(sel_fid, Int32)) for i in 1:sel_nbnodes]
 rec = ntoh(read(sel_fid, Int32))
 
 # read: Mesh info (xy coordinates)
 rec = ntoh(read(sel_fid, Int32))
 typefloat = nbnodes * 4 == rec ? Float32 : Float64
-x = Array{typefloat, 1}(undef, nbnodes)
-x = [ntoh(read(sel_fid, typefloat)) for i in 1:nbnodes]
+x = Array{typefloat, 1}(undef, sel_nbnodes)
+x = [ntoh(read(sel_fid, typefloat)) for i in 1:sel_nbnodes]
 rec = ntoh(read(sel_fid, Int32))
 rec = ntoh(read(sel_fid, Int32))
-y = Array{typefloat, 1}(undef, nbnodes)
-y = [ntoh(read(sel_fid, Float32)) for i in 1:nbnodes]
+y = Array{typefloat, 1}(undef, sel_nbnodes)
+y = [ntoh(read(sel_fid, Float32)) for i in 1:sel_nbnodes]
 rec = ntoh(read(sel_fid, Int32))
 
 # read: Number of time steps
 markposition = mark(sel_fid)
 bytecount = bytesize - markposition
-nbsteps = trunc(Int, bytecount / (sel_nbvars * nbnodes * sizeof(typefloat) + 8 * sel_nbvars +8))
+nbsteps = trunc(Int, bytecount / (sel_nbvars * sel_nbnodes * sizeof(typefloat) + 8 * sel_nbvars +8))
 
 # read: Variables
 reset(sel_fid)
-variables = Array{typefloat, 2}(undef, nbnodes, sel_nbvars)
+variables = Array{typefloat, 2}(undef, sel_nbnodes, sel_nbvars)
 timevalue =  Array{Float32, 1}(undef, nbsteps)
 for t in 1:nbsteps
     recloc = ntoh(read(sel_fid, Int32))
@@ -185,13 +185,13 @@ close(sel_fid)
 
 # Mesh: domain description and quality
 area = 0.
-triarea = Array{typefloat, 1}(undef, nbtriangles)
-triquality = Array{typefloat, 1}(undef, nbtriangles)
+triarea = Array{typefloat, 1}(undef, sel_nbtriangles)
+triquality = Array{typefloat, 1}(undef, sel_nbtriangles)
 cte = 4 * sqrt(3)
 for t in 1:nbtriangles
-    pt1 = ikle[t, 1]
-    pt2 = ikle[t, 2]
-    pt3 = ikle[t, 3]
+    pt1 = sel_ikle[t, 1]
+    pt2 = sel_ikle[t, 2]
+    pt3 = sel_ikle[t, 3]
     triarea[t] = 0.5 * abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
     global area += triarea[t]
     divlen = Distance.euclidean2(x[pt1], y[pt1], x[pt2], y[pt2]) +
@@ -214,22 +214,22 @@ area = round(area * 0.5e-6, digits = 2)
 strbadqualnumber = insertcommas(badqualnumber)
 
 # Mesh: get all segments
-ikle2 = sort(ikle, dims = 2)
-segments = Array{Tuple{Int32, Int32}}(undef, nbtriangles*3, 1)
+ikle2 = sort(sel_ikle, dims = 2)
+segments = Array{Tuple{Int32, Int32}}(undef, sel_nbtriangles * 3, 1)
 k = 1
-for t in 1:nbtriangles
-    segments[k] = (ikle2[t,1],ikle2[t,2])
+for t in 1:sel_nbtriangles
+    segments[k] = (ikle2[t, 1], ikle2[t, 2])
     global k += 1
-    segments[k] = (ikle2[t,1],ikle2[t,3])
+    segments[k] = (ikle2[t, 1], ikle2[t, 3])
     global k += 1
-    segments[k] = (ikle2[t,2],ikle2[t,3])
+    segments[k] = (ikle2[t, 2], ikle2[t, 3])
     global k += 1
 end
 segsave = segments
 segments = unique(segments, dims=1)
 segmentsize = size(segments)[1]
-ptxall = Array{Float32, 1}(undef, 3*segmentsize)
-ptyall = Array{Float32, 1}(undef, 3*segmentsize)
+ptxall = Array{Float32, 1}(undef, 3 * segmentsize)
+ptyall = Array{Float32, 1}(undef, 3 * segmentsize)
 k = 1
 for i in 1:segmentsize
     pt1 = segments[i][1]
@@ -249,8 +249,8 @@ end
 segcount = [(i, count(==(i), segsave)) for i in segsave]
 segunique = [segcount[i][1] for i in 1:size(segcount)[1] if segcount[i][2]==1]
 segmentsize = size(segunique)[1]
-ptxbnd = Array{Float32, 1}(undef, 3*segmentsize)
-ptybnd = Array{Float32, 1}(undef, 3*segmentsize)
+ptxbnd = Array{Float32, 1}(undef, 3 * segmentsize)
+ptybnd = Array{Float32, 1}(undef, 3 * segmentsize)
 k = 1
 for i in 1:segmentsize
     pt1 = segunique[i][1]
@@ -272,9 +272,9 @@ if badqualnumber > 0
     ptybad = Array{Float32, 1}(undef, 9 * badqualnumber)
     k = 1
     for i in 1:badqualnumber
-        pt1 = ikle[badqualind[i], 1]
-        pt2 = ikle[badqualind[i], 2]
-        pt3 = ikle[badqualind[i], 3]
+        pt1 = sel_ikle[badqualind[i], 1]
+        pt2 = sel_ikle[badqualind[i], 2]
+        pt3 = sel_ikle[badqualind[i], 3]
         ptxbad[k] = x[pt1]
         ptybad[k] = y[pt1]
         global k += 1
