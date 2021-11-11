@@ -5,6 +5,7 @@ include("./Distance.jl")
 include("./Utils.jl")
 include("./Parameters.jl")
 include("./Model.jl")
+include("./Read.jl")
 using .Distance
 using .Utils
 using .Parameters
@@ -12,191 +13,28 @@ using .Model
 
 
 # open the Selafin file
-sel_filename = "malpasset.slf"
-#sel_filename = "mersey.slf"
-#sel_filename = "Alderney_sea_level.slf"
-#sel_filename = "Alderney.slf"
-#sel_filename = "girxl2d_result.slf"
-# sel_filename = "a9.slf"
-bytesize = filesize(sel_filename)
-if bytesize == 0
-    error("$noksymbol The file $(sel_filename) does not exist")
-end
-if bytesize < filesizeunit["KB"]
-    readbytesize = bytesize
-    sizeunit = "Byte"
-elseif bytesize < filesizeunit["MB"]
-    readbytesize = bytesize / filesizeunit["KB"]
-    sizeunit = "KB"
-elseif bytesize < filesizeunit["GB"]
-    readbytesize = bytesize / filesizeunit["MB"]
-    sizeunit = "MB"
-elseif bytesize < filesizeunit["TB"]
-    readbytesize = bytesize / filesizeunit["GB"]
-    sizeunit = "GB"
-else
-    readbytesize = bytesize / filesizeunit["TB"]
-    sizeunit = "GB"
-end
-intreadbytesize = UInt16(round(readbytesize))
-println("$oksymbol File $sel_filename of size: $intreadbytesize $sizeunit")
-sel_fid = open(sel_filename, "r")
-
-# read: Title
-rec = ntoh(read(sel_fid, Int32))
-sel_title = String(read(sel_fid, rec))
-rec = ntoh(read(sel_fid, Int32))
-sel_title = lstrip(rstrip(sel_title))
-println("$oksymbol Name of the simulation: $sel_title")
-
-# read: Number of variables (tri)
-rec = ntoh(read(sel_fid, Int32))
-sel_nbvars = ntoh(read(sel_fid, Int32))
-
-# read: Number of variables (quad)
-nbqvars = ntoh(read(sel_fid, Int32))
-rec = ntoh(read(sel_fid, Int32))
-
-# read: Variable names
-sel_varnames = String[]
-for i in 1:sel_nbvars
-    localrec = ntoh(read(sel_fid, Int32))
-    push!(sel_varnames, String(read(sel_fid, localrec)))
-    localrec = ntoh(read(sel_fid, Int32))
-end
-
-# read: Forsegments (10 times 4 bytes is expected)
-fmtid = ntoh(read(sel_fid, Int32))
-if fmtid != 40
-    println("$noksymbol Unknown forsegments for data recording")
-    exit(fmtid)
-end
-
-# read: Integer parameters
-sel_iparam = Int32[]
-for i in 1:10
-    push!(sel_iparam, ntoh(read(sel_fid, Int32)))
-end
-fmtid = ntoh(read(sel_fid, Int32))
-
-# read: Date
-sel_idate = Int32[]
-checkdate = 0
-if sel_iparam[10] == 1
-    rec = ntoh(read(sel_fid, Int32))
-    for i in 1:6
-        push!(sel_idate, ntoh(read(sel_fid, Int32)))
-    end
-    rec = ntoh(read(sel_fid, Int32))
-    checkdate = sel_idate[1] * sel_idate[2] * sel_idate[3]
-end
-if checkdate == 0
-    datehour = "Unknown"
-else
-    datehour = Dates.format(DateTime(sel_idate[1], sel_idate[2], sel_idate[3], sel_idate[4], sel_idate[5], sel_idate[6]), "yyyy-mm-dd HH:MM:SS")
-end
-println("$oksymbol Event start date and time: $datehour")
-
-# read: Number of layers
-sel_nblayers = sel_iparam[7] != 0 ? sel_iparam[7] : 1
-dimtelemac = sel_nblayers == 1 ? "2D" : "3D"
-println("$oksymbol Telemac $dimtelemac results with $sel_nbvars variables")
-println("$oksymbol Variables are:")
-for i = 1:sel_nbvars
-    if i < 10
-        spacing = "  - "
-    else
-        spacing = " - "
-    end
-    vname = lowercase(lstrip(rstrip(sel_varnames[i])))
-    println("\t$i$spacing$vname")
-end
-
-# read: Mesh info (size)
-rec = ntoh(read(sel_fid, Int32))
-sel_nbtriangles =  ntoh(read(sel_fid, Int32))
-sel_nbnodes =  ntoh(read(sel_fid, Int32))
-nbptelem =  ntoh(read(sel_fid, Int32))
-if nbptelem != 3
-    println("$noksymbol Unknown type of mesh elements")
-    exit(nbptelem)
-end
-unknown = ntoh(read(sel_fid, Int32))
-rec = ntoh(read(sel_fid, Int32))
-strnbtriangles = insertcommas(sel_nbtriangles)
-strnbnodes = insertcommas(sel_nbnodes)
-println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
-
-# read: Mesh info (ikle connectivity)
-rec = ntoh(read(sel_fid, Int32))
-sel_ikle = zeros(Int32, nbptelem, sel_nbtriangles)
-sel_ikle = [ntoh(read(sel_fid, Int32)) for i in 1:nbptelem, j in 1:sel_nbtriangles]
-sel_ikle = transpose(sel_ikle)
-rec = ntoh(read(sel_fid, Int32))
-
-# read: Mesh info (ipobo boundary nodes)
-rec = ntoh(read(sel_fid, Int32))
-ipobo = zeros(Int32, nbnodes)
-ipobo = [ntoh(read(sel_fid, Int32)) for i in 1:sel_nbnodes]
-rec = ntoh(read(sel_fid, Int32))
-
-# read: Mesh info (xy coordinates)
-rec = ntoh(read(sel_fid, Int32))
-typefloat = nbnodes * 4 == rec ? Float32 : Float64
-x = Array{typefloat, 1}(undef, sel_nbnodes)
-x = [ntoh(read(sel_fid, typefloat)) for i in 1:sel_nbnodes]
-rec = ntoh(read(sel_fid, Int32))
-rec = ntoh(read(sel_fid, Int32))
-y = Array{typefloat, 1}(undef, sel_nbnodes)
-y = [ntoh(read(sel_fid, Float32)) for i in 1:sel_nbnodes]
-rec = ntoh(read(sel_fid, Int32))
-
-# read: Number of time steps
-markposition = mark(sel_fid)
-bytecount = bytesize - markposition
-nbsteps = trunc(Int, bytecount / (sel_nbvars * sel_nbnodes * sizeof(typefloat) + 8 * sel_nbvars +8))
-
-# read: Variables
-reset(sel_fid)
-variables = Array{typefloat, 2}(undef, sel_nbnodes, sel_nbvars)
-timevalue =  Array{Float32, 1}(undef, nbsteps)
-for t in 1:nbsteps
-    recloc = ntoh(read(sel_fid, Int32))
-    timevalue[t] = ntoh(read(sel_fid, Float32))
-    recloc = ntoh(read(sel_fid, Int32))
-    for v in 1:sel_nbvars
-        recloc = ntoh(read(sel_fid, Int32))
-        raw_data = zeros(UInt8, recloc)
-        readbytes!(sel_fid, raw_data, recloc)
-        variables[:,v] .= ntoh.(reinterpret(typefloat, raw_data))
-        recloc = ntoh(read(sel_fid, Int32))
-    end
-end
-if nbsteps > 1
-    timesteps = timevalue[2] - timevalue[1]
-    println("$oksymbol Number of time steps: $nbsteps with "*"$delta"*"t = $timesteps s")
-else
-    println("$oksymbol Number of time steps: $nbsteps")
-end
-
-
-# close the Selafin file
-close(sel_fid)
+filename = "malpasset.slf"
+results = Read(filename)
+#filename = "mersey.slf"
+#filename = "Alderney_sea_level.slf"
+#filename = "Alderney.slf"
+#filename = "girxl2d_result.slf"
+# filename = "a9.slf"
 
 # Mesh: domain description and quality
 area = 0.
-triarea = Array{typefloat, 1}(undef, sel_nbtriangles)
-triquality = Array{typefloat, 1}(undef, sel_nbtriangles)
+triarea = Array{results.typefloat, 1}(undef, results.nbtriangles)
+triquality = Array{results.typefloat, 1}(undef, results.nbtriangles)
 cte = 4 * sqrt(3)
-for t in 1:nbtriangles
-    pt1 = sel_ikle[t, 1]
-    pt2 = sel_ikle[t, 2]
-    pt3 = sel_ikle[t, 3]
-    triarea[t] = 0.5 * abs(((x[pt2] - x[pt1]) * (y[pt3] - y[pt1]) - (x[pt3] - x[pt1]) * (y[pt2] - y[pt1])))
+for t in 1:results.nbtriangles
+    pt1 = results.ikle[t, 1]
+    pt2 = results.ikle[t, 2]
+    pt3 = results.ikle[t, 3]
+    triarea[t] = 0.5 * abs(((results.x[pt2] - results.x[pt1]) * (results.y[pt3] - results.y[pt1]) - (results.x[pt3] - results.x[pt1]) * (results.y[pt2] - results.y[pt1])))
     global area += triarea[t]
-    divlen = Distance.euclidean2(x[pt1], y[pt1], x[pt2], y[pt2]) +
-             Distance.euclidean2(x[pt1], y[pt1], x[pt3], y[pt3]) +
-             Distance.euclidean2(x[pt2], y[pt2], x[pt3], y[pt3])
+    divlen = Distance.euclidean2(results.x[pt1], results.y[pt1], results.x[pt2], results.y[pt2]) +
+             Distance.euclidean2(results.x[pt1], results.y[pt1], results.x[pt3], results.y[pt3]) +
+             Distance.euclidean2(results.x[pt2], results.y[pt2], results.x[pt3], results.y[pt3])
     triquality[t] = divlen > Parameters.eps ? cte * triarea[t] / divlen : 0.
 end
 badqualnumber = count(<(Parameters.minqualval), triquality)
@@ -214,10 +52,10 @@ area = round(area * 0.5e-6, digits = 2)
 strbadqualnumber = insertcommas(badqualnumber)
 
 # Mesh: get all segments
-ikle2 = sort(sel_ikle, dims = 2)
-segments = Array{Tuple{Int32, Int32}}(undef, sel_nbtriangles * 3, 1)
+ikle2 = sort(results.ikle, dims = 2)
+segments = Array{Tuple{Int32, Int32}}(undef, results.nbtriangles * 3, 1)
 k = 1
-for t in 1:sel_nbtriangles
+for t in 1:results.nbtriangles
     segments[k] = (ikle2[t, 1], ikle2[t, 2])
     global k += 1
     segments[k] = (ikle2[t, 1], ikle2[t, 3])
@@ -234,11 +72,11 @@ k = 1
 for i in 1:segmentsize
     pt1 = segments[i][1]
     pt2 = segments[i][2]
-    ptxall[k] = x[pt1]
-    ptyall[k] = y[pt1]
+    ptxall[k] = results.x[pt1]
+    ptyall[k] = results.y[pt1]
     global k += 1
-    ptxall[k] = x[pt2]
-    ptyall[k] = y[pt2]
+    ptxall[k] = results.x[pt2]
+    ptyall[k] = results.y[pt2]
     global k += 1
     ptxall[k] = NaN
     ptyall[k] = NaN
@@ -255,11 +93,11 @@ k = 1
 for i in 1:segmentsize
     pt1 = segunique[i][1]
     pt2 = segunique[i][2]
-    ptxbnd[k] = x[pt1]
-    ptybnd[k] = y[pt1]
+    ptxbnd[k] = results.x[pt1]
+    ptybnd[k] = results.y[pt1]
     global k += 1
-    ptxbnd[k] = x[pt2]
-    ptybnd[k] = y[pt2]
+    ptxbnd[k] = results.x[pt2]
+    ptybnd[k] = results.y[pt2]
     global k += 1
     ptxbnd[k] = NaN
     ptybnd[k] = NaN
@@ -272,32 +110,32 @@ if badqualnumber > 0
     ptybad = Array{Float32, 1}(undef, 9 * badqualnumber)
     k = 1
     for i in 1:badqualnumber
-        pt1 = sel_ikle[badqualind[i], 1]
-        pt2 = sel_ikle[badqualind[i], 2]
-        pt3 = sel_ikle[badqualind[i], 3]
-        ptxbad[k] = x[pt1]
-        ptybad[k] = y[pt1]
+        pt1 = results.ikle[badqualind[i], 1]
+        pt2 = results.ikle[badqualind[i], 2]
+        pt3 = results.ikle[badqualind[i], 3]
+        ptxbad[k] = results.x[pt1]
+        ptybad[k] = results.y[pt1]
         global k += 1
-        ptxbad[k] = x[pt2]
-        ptybad[k] = y[pt2]
-        global k += 1
-        ptxbad[k] = NaN
-        ptybad[k] = NaN
-        global k += 1
-        ptxbad[k] = x[pt2]
-        ptybad[k] = y[pt2]
-        global k += 1
-        ptxbad[k] = x[pt3]
-        ptybad[k] = y[pt3]
+        ptxbad[k] = results.x[pt2]
+        ptybad[k] = results.y[pt2]
         global k += 1
         ptxbad[k] = NaN
         ptybad[k] = NaN
         global k += 1
-        ptxbad[k] = x[pt1]
-        ptybad[k] = y[pt1]
+        ptxbad[k] = results.x[pt2]
+        ptybad[k] = results.y[pt2]
         global k += 1
-        ptxbad[k] = x[pt3]
-        ptybad[k] = y[pt3]
+        ptxbad[k] = results.x[pt3]
+        ptybad[k] = results.y[pt3]
+        global k += 1
+        ptxbad[k] = NaN
+        ptybad[k] = NaN
+        global k += 1
+        ptxbad[k] = results.x[pt1]
+        ptybad[k] = results.y[pt1]
+        global k += 1
+        ptxbad[k] = results.x[pt3]
+        ptybad[k] = results.y[pt3]
         global k += 1
         ptxbad[k] = NaN
         ptybad[k] = NaN
@@ -310,7 +148,7 @@ perimeter = 0.
 for s in 1:segmentsize
     pt1 = segunique[s][1]
     pt2 = segunique[s][2]
-    global perimeter += Distance.euclidean(x[pt1], y[pt1], x[pt2], y[pt2])
+    global perimeter += Distance.euclidean(results.x[pt1], results.y[pt1], results.x[pt2], results.y[pt2])
 end
 perimeter = round(perimeter * 1e-3, digits = 1)
 println("$oksymbol Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
@@ -319,7 +157,7 @@ println("$oksymbol Study area surface: $area km$(Parameters.superscripttwo) and 
 fig = Figure()
 ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
 ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
-ax1.title = "Mesh ($strnbtriangles triangles)"
+ax1.title = "Mesh ($(results.nbtriangles) triangles)"
 ax2.title = "Boundary ($perimeter km) - $strbadqualnumber bad triangles"
 ax1.xlabel = "x-coordinates (m)"
 ax2.xlabel = "x-coordinates (m)"
