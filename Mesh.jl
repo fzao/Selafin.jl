@@ -1,4 +1,4 @@
-function Quality(data, figopt=false, quaval=Parameters.minqualval)
+function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualval)
 
     area = 0.
     triarea = Array{data.typefloat, 1}(undef, data.nbtriangles)
@@ -141,7 +141,7 @@ function Quality(data, figopt=false, quaval=Parameters.minqualval)
         println("$(Parameters.oksymbol) Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
 
         # plot
-        fig = Figure()
+        fig = Figure(resolution = (1280, 1024))
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
         ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
         ax1.title = "Mesh ($(data.nbtriangles) triangles)"
@@ -166,6 +166,9 @@ function Quality(data, figopt=false, quaval=Parameters.minqualval)
         ax3.xlabel = "Mesh quality"
         ax3.ylabel = "Frequency"
 
+        if !isnothing(figname)
+            save(figname, fig, px_per_unit = 2)
+        end
         display(fig)
     end
         
