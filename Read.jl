@@ -24,7 +24,7 @@ function Read(filename)
         sizeunit = "GB"
     end
     intreadbytesize = UInt16(round(readbytesize))
-    println("$oksymbol File $(telemac_data.filename) of size: $intreadbytesize $sizeunit")
+    println("$(Parameters.oksymbol) File $(telemac_data.filename) of size: $intreadbytesize $sizeunit")
     telemac_data.fid = open(telemac_data.filename, "r")
 
     # read: Title
@@ -32,7 +32,7 @@ function Read(filename)
     telemac_data.title = String(read(telemac_data.fid, rec))
     rec = ntoh(read(telemac_data.fid, Int32))
     telemac_data.title = lstrip(rstrip(telemac_data.title))
-    println("$oksymbol Name of the simulation: $(telemac_data.title)")
+    println("$(Parameters.oksymbol) Name of the simulation: $(telemac_data.title)")
 
     # read: Number of variables (tri)
     rec = ntoh(read(telemac_data.fid, Int32))
@@ -53,7 +53,7 @@ function Read(filename)
     # read: Forsegments (10 times 4 bytes is expected)
     fmtid = ntoh(read(telemac_data.fid, Int32))
     if fmtid != 40
-        println("$noksymbol Unknown forsegments for data recording")
+        println("$(Parameters.noksymbol) Unknown forsegments for data recording")
         exit(fmtid)
     end
 
@@ -80,13 +80,13 @@ function Read(filename)
     else
         datehour = Dates.format(DateTime(telemac_data.idate[1], telemac_data.idate[2], telemac_data.idate[3], telemac_data.idate[4], telemac_data.idate[5], telemac_data.idate[6]), "yyyy-mm-dd HH:MM:SS")
     end
-    println("$oksymbol Event start date and time: $datehour")
+    println("$(Parameters.oksymbol) Event start date and time: $datehour")
 
     # read: Number of layers
     telemac_data.nblayers = telemac_data.iparam[7] != 0 ? telemac_data.iparam[7] : 1
     dimtelemac = telemac_data.nblayers == 1 ? "2D" : "3D"
-    println("$oksymbol Telemac $dimtelemac results with $(telemac_data.nbvars) variables")
-    println("$oksymbol Variables are:")
+    println("$(Parameters.oksymbol) Telemac $dimtelemac results with $(telemac_data.nbvars) variables")
+    println("$(Parameters.oksymbol) Variables are:")
     for i = 1:telemac_data.nbvars
         if i < 10
             spacing = "  - "
@@ -103,14 +103,14 @@ function Read(filename)
     telemac_data.nbnodes =  ntoh(read(telemac_data.fid, Int32))
     nbptelem =  ntoh(read(telemac_data.fid, Int32))
     if nbptelem != 3
-        println("$noksymbol Unknown type of mesh elements")
+        println("$(Parameters.noksymbol) Unknown type of mesh elements")
         exit(nbptelem)
     end
     unknown = ntoh(read(telemac_data.fid, Int32))
     rec = ntoh(read(telemac_data.fid, Int32))
     strnbtriangles = insertcommas(telemac_data.nbtriangles)
     strnbnodes = insertcommas(telemac_data.nbnodes)
-    println("$oksymbol Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
+    println("$(Parameters.oksymbol) Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
 
     # read: Mesh info (ikle connectivity)
     rec = ntoh(read(telemac_data.fid, Int32))
@@ -159,10 +159,10 @@ function Read(filename)
     end
     if telemac_data.nbsteps > 1
         telemac_data.timestep = timevalue[2] - timevalue[1]
-        println("$oksymbol Number of time steps: $(telemac_data.nbsteps) with "*"$delta"*"t = $(telemac_data.timestep) s")
+        println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps) with "*"$delta"*"t = $(telemac_data.timestep) s")
     else
         telemac_data.timestep = 0
-        println("$oksymbol Number of time steps: $(telemac_data.nbsteps)")
+        println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps)")
     end
 
     # close the Selafin file

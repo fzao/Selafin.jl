@@ -1,4 +1,4 @@
-function Quality(data, quaval=Parameters.minqualval, figopt=false)
+function Quality(data, figopt=false, quaval=Parameters.minqualval)
 
     area = 0.
     triarea = Array{data.typefloat, 1}(undef, data.nbtriangles)
@@ -21,6 +21,14 @@ function Quality(data, quaval=Parameters.minqualval, figopt=false)
     minqual = round(minimum(triquality), digits = 2)
     meanqual = round(mean(triquality), digits = 2)
     maxqual = round(maximum(triquality), digits = 2)
+    histqual = fit(Histogram, triquality, nbins=10).weights
+    println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
+    println("\t$(Parameters.smallsquare) Triangles")
+    for i = 1:10
+        a = round((i - 1) * 0.1, digits = 1)
+        b = round(i * 0.1, digits = 1)
+        println("\t$a...$b: $(histqual[i])")
+    end
     #= sortqualval = [badqualval badqualind]
     sortqualval = sortslices(sortqualval, dims=1)
     badqualval = sortqualval[:, 1]
@@ -130,7 +138,7 @@ function Quality(data, quaval=Parameters.minqualval, figopt=false)
             perimeter += Distance.euclidean(data.x[pt1], data.y[pt1], data.x[pt2], data.y[pt2])
         end
         perimeter = round(perimeter * 1e-3, digits = 1)
-        println("$oksymbol Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
+        println("$(Parameters.oksymbol) Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
 
         # plot
         fig = Figure()
@@ -160,4 +168,7 @@ function Quality(data, quaval=Parameters.minqualval, figopt=false)
 
         display(fig)
     end
+        
+    return triquality
+
 end
