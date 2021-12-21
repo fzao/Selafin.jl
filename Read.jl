@@ -1,5 +1,13 @@
 function Read(filename)
 
+    if typeof(filename) != String
+        println("$(Parameters.noksymbol) Parameter for the file name is not a string")
+        return
+    elseif !isfile(filename)
+        println("$(Parameters.noksymbol) Selafin file does not exist")
+        return
+    end
+
     telemac_data = Data()
     telemac_data.filename = filename
 
