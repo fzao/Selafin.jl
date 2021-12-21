@@ -3,7 +3,7 @@ module Model
     export Data
 
     mutable struct Data
-        fid::IOStream  # file identifier
+        markposition::Int64  # marker position for the values of variables
         filename:: String  # Selafin file path
         title::String  # name of the study
         nbvars::Int32  # number of variables

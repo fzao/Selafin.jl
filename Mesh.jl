@@ -1,5 +1,10 @@
 function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualval)
 
+    if typeof(data) != Data
+        println("$(Parameters.noksymbol) The first parameter is not a Data struct")
+        return
+    end
+
     area = 0.
     triarea = Array{data.typefloat, 1}(undef, data.nbtriangles)
     triquality = Array{data.typefloat, 1}(undef, data.nbtriangles)
@@ -171,7 +176,7 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         end
         display(fig)
     end
-        
+
     return triquality
 
 end
