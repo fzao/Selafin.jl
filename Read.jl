@@ -152,7 +152,6 @@ function Read(filename)
 
     # read: Variables
     reset(fid)
-    #variables = Array{telemac_data.typefloat, 2}(undef, telemac_data.nbnodes, telemac_data.nbvars)
     timevalue =  Array{Float32, 1}(undef, telemac_data.nbsteps)
     for t in 1:telemac_data.nbsteps
         recloc = ntoh(read(fid, Int32))
@@ -162,7 +161,6 @@ function Read(filename)
             recloc = ntoh(read(fid, Int32))
             raw_data = zeros(UInt8, recloc)
             readbytes!(fid, raw_data, recloc)
-            #variables[:, v] .= ntoh.(reinterpret(telemac_data.typefloat, raw_data))
             recloc = ntoh(read(fid, Int32))
         end
     end
