@@ -19,9 +19,9 @@ using .Model
 #filename = "malpasset.slf"
 #filename = "mersey.slf"
 #filename = "Alderney_sea_level.slf"
-filename = "Alderney.slf"
+#filename = "Alderney.slf"
 #filename = "girxl2d_result.slf"
-#filename = "a9.slf"
+filename = "a9.slf"
 
 # read file
 data = Read(filename);
@@ -30,4 +30,4 @@ data = Read(filename);
 # qual = Quality(data, true);
 
 # variable values
-val = Get(data)
+val = Get(data, 3, 1)
