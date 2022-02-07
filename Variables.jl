@@ -35,7 +35,7 @@ function Get(data, novar=0, notime=0)
             readbytes!(fid, raw_data, recloc)
             variables[:] .= ntoh.(reinterpret(data.typefloat, raw_data))
             recloc = ntoh(read(fid, Int32))
-            if t == notime & v == novar
+            if t == notime && v == novar
                 exitloop = true
                 break
             end
