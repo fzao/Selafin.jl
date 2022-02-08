@@ -1,4 +1,4 @@
-function Get(data, novar=0, notime=0)
+function Get(data, novar=0, notime=0, figopt=false, figname=nothing)
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")
@@ -58,6 +58,19 @@ function Get(data, novar=0, notime=0)
     println("\t Max. value: $maxval")
     println("\t Mean: $meanval")
     println("\t Median: $medval")
+
+    if figopt
+        fig = Figure()
+        Axis(fig[1, 1], title=data.varnames[novar], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        Colorbar(fig[1, 2], limits = (minimum(variables), maximum(variables)), colormap = :viridis)
+        scatter!(data.x, data.y, color=variables)
+
+        if !isnothing(figname)
+            save(figname, fig, px_per_unit = 2)
+        end
+
+        display(fig)
+    end
 
     return variables
 end
