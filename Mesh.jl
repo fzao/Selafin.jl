@@ -26,14 +26,21 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
     minqual = round(minimum(triquality), digits = 2)
     meanqual = round(mean(triquality), digits = 2)
     maxqual = round(maximum(triquality), digits = 2)
-    histqual = fit(Histogram, triquality, nbins=10).weights
+    histo = fit(Histogram, triquality, nbins=10)
+    histqual = histo.weights
     println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
     println("\t$(Parameters.smallsquare) Triangles")
-    for i = 1:10
-        a = round((i - 1) * 0.1, digits = 1)
-        b = round(i * 0.1, digits = 1)
-        println("\t$a...$b: $(histqual[i])")
+    edges = histo.edges[1]
+    for i = 2:length(edges)
+        a = round(edges[i-1], digits = 2)
+        b = round(edges[i], digits = 2)
+        println("\t$a...$b: $(histqual[i-1])")
     end
+    # for i = 1:10
+    #     a = round((i - 1) * 0.1, digits = 1)
+    #     b = round(i * 0.1, digits = 1)
+    #     println("\t$a...$b: $(histqual[i])")
+    # end
     #= sortqualval = [badqualval badqualind]
     sortqualval = sortslices(sortqualval, dims=1)
     badqualval = sortqualval[:, 1]
