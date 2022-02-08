@@ -63,7 +63,7 @@ function Get(data, novar=0, notime=0, figopt=false, figname=nothing)
         fig = Figure()
         Axis(fig[1, 1], title=data.varnames[novar], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         Colorbar(fig[1, 2], limits = (minimum(variables), maximum(variables)), colormap = :viridis)
-        scatter!(data.x, data.y, color=variables)
+        mesh!([data.x data.y], data.ikle, color=variables, colormap=:viridis, shading=false)
 
         if !isnothing(figname)
             save(figname, fig, px_per_unit = 2)
