@@ -20,6 +20,7 @@ using .Model
 #filename = "mersey.slf"
 #filename = "Alderney_sea_level.slf"
 filename = "Alderney.slf"
+#filename = "perm.slf"
 #filename = "girxl2d_result.slf"
 #filename = "a9.slf"
 #filename = "Q_Usine.slf"
@@ -28,7 +29,7 @@ filename = "Alderney.slf"
 data = Read(filename);
 
 # mesh quality
-qual = Quality(data);
+qual = Quality(data, true);
 
 # variable values
 val = Get(data, 3, 1, true)

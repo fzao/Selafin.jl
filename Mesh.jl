@@ -26,20 +26,20 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
     minqual = round(minimum(triquality), digits = 2)
     meanqual = round(mean(triquality), digits = 2)
     maxqual = round(maximum(triquality), digits = 2)
-    histo = fit(Histogram, triquality, nbins=10)
+    histo = fit(Histogram, triquality, 0:0.1:1.0)
     histqual = histo.weights
     println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
     println("\t$(Parameters.smallsquare) Triangles")
-    edges = histo.edges[1]
-    for i = 2:length(edges)
-        a = round(edges[i-1], digits = 2)
-        b = round(edges[i], digits = 2)
-        println("\t$a...$b: $(histqual[i-1])")
+    for i = 1:10
+        a = round((i - 1) * 0.1, digits = 1)
+        b = round(i * 0.1, digits = 1)
+        println("\t$a...$b: $(histqual[i])")
     end
-    # for i = 1:10
-    #     a = round((i - 1) * 0.1, digits = 1)
-    #     b = round(i * 0.1, digits = 1)
-    #     println("\t$a...$b: $(histqual[i])")
+    # edges = histo.edges[1]
+    # for i = 2:length(edges)
+    #     a = round(edges[i-1], digits = 2)
+    #     b = round(edges[i], digits = 2)
+    #     println("\t$a...$b: $(histqual[i-1])")
     # end
     #= sortqualval = [badqualval badqualind]
     sortqualval = sortslices(sortqualval, dims=1)
@@ -83,8 +83,8 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         end
 
         # Mesh: get boundary segments
-        segcount = [(i, count(==(i), segsave)) for i in segsave]
-        segunique = [segcount[i][1] for i in 1:size(segcount)[1] if segcount[i][2]==1]
+        @time segcount = [(i, count(==(i), segsave)) for i in segsave]
+        @time segunique = [segcount[i][1] for i in 1:size(segcount)[1] if segcount[i][2]==1]
         segmentsize = size(segunique)[1]
         ptxbnd = Array{Float32, 1}(undef, 3 * segmentsize)
         ptybnd = Array{Float32, 1}(undef, 3 * segmentsize)
