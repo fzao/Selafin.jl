@@ -62,6 +62,7 @@ function Read(filename)
     fmtid = ntoh(read(fid, Int32))
     if fmtid != 40
         println("$(Parameters.noksymbol) Unknown forsegments for data recording")
+        flush(stdout)
         exit(fmtid)
     end
 
@@ -112,6 +113,7 @@ function Read(filename)
     nbptelem =  ntoh(read(fid, Int32))
     if nbptelem != 3
         println("$(Parameters.noksymbol) Unknown type of mesh elements")
+        flush(stdout)
         exit(nbptelem)
     end
     unknown = ntoh(read(fid, Int32))

@@ -17,13 +17,14 @@ using .Model
 
 # Selafin file
 #filename = "malpasset.slf"
-#filename = "mersey.slf"
+filename = "mersey.slf"
 #filename = "Alderney_sea_level.slf"
 #filename = "Alderney.slf"
 #filename = "perm.slf"
 #filename = "girxl2d_result.slf"
-filename = "a9.slf"
+#filename = "a9.slf"
 #filename = "Q_Usine.slf"
+filename = "berre.slf"
 
 # read file
 data = Read(filename);
