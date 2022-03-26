@@ -62,8 +62,19 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
             segments[k] = (ikle2[t, 2], ikle2[t, 3])
             k += 1
         end
+        segmentId = Array{String, 1}(undef, size(segments)[1])
+        for i in 1:size(segments)[1]
+            a = segments[i][1]
+            b = segments[i][2]
+            if a < b
+                segmentId[i] = string(string(a), ' ', string(b))
+            else
+                segmentId[i] = string(string(b), ' ', string(a))
+            end
+        end
         segsave = segments
-        segments = unique(segments, dims=1)
+        segmentUniqueId = unique(i -> segmentId[i], 1:length(segmentId))
+        segments = segments[segmentUniqueId]
         segmentsize = size(segments)[1]
         ptxall = Array{Float32, 1}(undef, 3 * segmentsize)
         ptyall = Array{Float32, 1}(undef, 3 * segmentsize)
@@ -82,16 +93,17 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
             k += 1
         end
 
-        # Mesh: get boundary segments
-        @time segcount = [(i, count(==(i), segsave)) for i in segsave]
-        @time segunique = [segcount[i][1] for i in 1:size(segcount)[1] if segcount[i][2]==1]
-        segmentsize = size(segunique)[1]
+        # Mesh: get boundary segments and coordinates
+        dicCount = countmap(segsave)
+        segmentBoundary = [segsave[i] for i in 1:size(segsave)[1] if dicCount[segsave[i]]==1]
+
+        segmentsize = size(segmentBoundary)[1]
         ptxbnd = Array{Float32, 1}(undef, 3 * segmentsize)
         ptybnd = Array{Float32, 1}(undef, 3 * segmentsize)
         k = 1
         for i in 1:segmentsize
-            pt1 = segunique[i][1]
-            pt2 = segunique[i][2]
+            pt1 = segmentBoundary[i][1]
+            pt2 = segmentBoundary[i][2]
             ptxbnd[k] = data.x[pt1]
             ptybnd[k] = data.y[pt1]
             k += 1
@@ -145,8 +157,8 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         # Mesh: get the perimeter value
         perimeter = 0.
         for s in 1:segmentsize
-            pt1 = segunique[s][1]
-            pt2 = segunique[s][2]
+            pt1 = segmentBoundary[s][1]
+            pt2 = segmentBoundary[s][2]
             perimeter += Distance.euclidean(data.x[pt1], data.y[pt1], data.x[pt2], data.y[pt2])
         end
         perimeter = round(perimeter * 1e-3, digits = 1)
