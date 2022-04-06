@@ -111,7 +111,7 @@ function Read(filename)
     telemac_data.nbtriangles =  ntoh(read(fid, Int32))
     telemac_data.nbnodes =  ntoh(read(fid, Int32))
     nbptelem =  ntoh(read(fid, Int32))
-    if nbptelem != 3
+    if (telemac_data.nblayers == 1 && nbptelem != 3) || (telemac_data.nblayers != 1 && nbptelem != 6)
         println("$(Parameters.noksymbol) Unknown type of mesh elements")
         flush(stdout)
         exit(nbptelem)

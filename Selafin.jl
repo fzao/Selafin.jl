@@ -17,7 +17,7 @@ using .Model
 
 # Selafin file
 #filename = "malpasset.slf"
-filename = "mersey.slf"
+#filename = "mersey.slf"
 #filename = "Alderney_sea_level.slf"
 #filename = "Alderney.slf"
 #filename = "perm.slf"
@@ -33,4 +33,4 @@ data = Read(filename);
 qual = Quality(data, true);
 
 # variable values
-val = Get(data, 3, 1)
+#val = Get(data, 3, 1)
