@@ -1,3 +1,20 @@
+#
+# Selafin.jl : a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language
+#
+# Released under the MIT License
+#
+# Copyright (c) 2021 Fabrice Zaoui
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+#
 using GLMakie
 using Dates
 using BenchmarkTools
@@ -15,22 +32,15 @@ using .Parameters
 using .Model
 
 
-# Selafin file
-#filename = "malpasset.slf"
-#filename = "mersey.slf"
-#filename = "Alderney_sea_level.slf"
-#filename = "Alderney.slf"
-#filename = "perm.slf"
-#filename = "girxl2d_result.slf"
-#filename = "a9.slf"
-#filename = "Q_Usine.slf"
-filename = "berre.slf"
+# Selafin file example
+filename = "tests/malpasset.slf"
+#filename = "tests/mersey.slf"
 
 # read file
 data = Read(filename);
 
 # mesh quality
-qual = Quality(data, true);
+qual = Quality(data);
 
 # variable values
-#val = Get(data, 3, 1)
+val = Get(data, 3, 1);
