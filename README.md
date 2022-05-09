@@ -13,21 +13,23 @@ Three user's functions are defined to read the Selafin file, get info on the mes
 The following code is an example use on a Telemac 2D file:
 
 <p align="left">
-  <img src="./fig/example.png" width="800"/>
+  <img src="./fig/example.png" width="300"/>
 </p>
 
 
 The latter will give the following print out:
 
 <p align="left">
-  <img src="./fig/printout.png" width="800"/>
+  <img src="./fig/printout.png" width="600"/>
 </p>
 
-and the following figures for the mesh quality 2D view results of the water depth:
+and the following figures for the mesh quality:
 
 <p align="center">
   <img src="./fig/meshvis.png" width="800"/>
 </p>
+
+ and for the 2D results of the water depth:
 
 <p align="center">
   <img src="./fig/resvis.png" width="800"/>
