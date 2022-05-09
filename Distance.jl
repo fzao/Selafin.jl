@@ -1,4 +1,4 @@
-# Distance.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language)
+# Distance.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
 # Some distance formulas
 # 

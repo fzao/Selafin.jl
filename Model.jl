@@ -1,5 +1,5 @@
 
-# Model.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language)
+# Model.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
 # The Julia structure of the Telemac parameters
 # 

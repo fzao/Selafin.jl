@@ -1,4 +1,4 @@
-# Read.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language)
+# Read.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
 # Read parameters from a Selafin file name
 # Return a data structure (Model.jl) containing all the information

@@ -1,4 +1,4 @@
-# Mesh.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language)
+# Mesh.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
 # Compute the 2D mesh quality of the Telemac case
 # Optionally displays (figopt parameter) and prints out (figname parameter) the results

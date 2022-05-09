@@ -1,5 +1,5 @@
 #
-# Selafin.jl : a reader and viewer of the Telemac Selfin file (www.opentelemac.org) in the Julia programming language
+# Selafin.jl : a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language
 #
 # Released under the MIT License
 #
@@ -34,7 +34,6 @@ using .Model
 
 # Selafin file example
 filename = "tests/malpasset.slf"
-#filename = "tests/mersey.slf"
 
 # read file
 data = Read(filename);
@@ -44,3 +43,6 @@ qual = Quality(data);
 
 # variable values
 val = Get(data, 3, 1);
+
+
+
