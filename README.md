@@ -1,7 +1,7 @@
 Telemac Selafin file reader in Julia
 ====================================
 
-This program a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language
+This program is a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language
 
 Purpose: get info on the Telemac result file (values and mesh)
 
