@@ -3,7 +3,7 @@
 # Compute the 2D mesh quality of the Telemac case
 # Optionally displays (figopt parameter) and prints out (figname parameter) the results
 # Return the array of the mesh quality
-# 
+#
 # Released under the MIT License
 #
 # Copyright (c) 2021 Fabrice Zaoui
@@ -22,6 +22,10 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) The first parameter is not a Data struct")
+        return
+    end
+    if data.nblayers > 1
+        println("$(Parameters.noksymbol) 3D case not yet implemented...")
         return
     end
 

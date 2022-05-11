@@ -2,7 +2,7 @@
 #
 # Read parameters from a Selafin file name
 # Return a data structure (Model.jl) containing all the information
-# 
+#
 # Released under the MIT License
 #
 # Copyright (c) 2021 Fabrice Zaoui
@@ -113,7 +113,11 @@ function Read(filename)
     # read: Number of layers
     telemac_data.nblayers = telemac_data.iparam[7] != 0 ? telemac_data.iparam[7] : 1
     dimtelemac = telemac_data.nblayers == 1 ? "2D" : "3D"
-    println("$(Parameters.oksymbol) Telemac $dimtelemac results with $(telemac_data.nbvars) variables")
+    if dimtelemac == "2D"
+        println("$(Parameters.oksymbol) Telemac 2D results with $(telemac_data.nbvars) variables")
+    else
+        println("$(Parameters.oksymbol) Telemac 3D results with $(telemac_data.nbvars) variables and $(telemac_data.nblayers) planes")
+    end
     println("$(Parameters.oksymbol) Variables are:")
     for i = 1:telemac_data.nbvars
         if i < 10
@@ -134,6 +138,10 @@ function Read(filename)
         println("$(Parameters.noksymbol) Unknown type of mesh elements")
         flush(stdout)
         exit(nbptelem)
+    end
+    if telemac_data.nblayers > 1
+        println("$(Parameters.noksymbol) 3D case not yet implemented...")
+        return
     end
     unknown = ntoh(read(fid, Int32))
     rec = ntoh(read(fid, Int32))
