@@ -24,10 +24,6 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         println("$(Parameters.noksymbol) The first parameter is not a Data struct")
         return
     end
-    #if data.nblayers > 1
-    #    println("$(Parameters.noksymbol) 3D case not yet implemented...")
-    #    return
-    #end
 
     area = 0.
     triarea = Array{data.typefloat, 1}(undef, data.nbtrianglesLayer)

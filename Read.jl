@@ -116,7 +116,7 @@ function Read(filename)
     if dimtelemac == "2D"
         println("$(Parameters.oksymbol) Telemac 2D results with $(telemac_data.nbvars) variables")
     else
-        println("$(Parameters.oksymbol) Telemac 3D results with $(telemac_data.nbvars) variables and $(telemac_data.nblayers) planes")
+        println("$(Parameters.oksymbol) Telemac 3D results with $(telemac_data.nbvars) variables and $(telemac_data.nblayers) layers")
     end
     println("$(Parameters.oksymbol) Variables are:")
     for i = 1:telemac_data.nbvars
