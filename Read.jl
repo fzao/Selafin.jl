@@ -139,14 +139,17 @@ function Read(filename)
         flush(stdout)
         exit(nbptelem)
     end
-    if telemac_data.nblayers > 1
-        println("$(Parameters.noksymbol) 3D case not yet implemented...")
-        return
-    end
     unknown = ntoh(read(fid, Int32))
     rec = ntoh(read(fid, Int32))
-    strnbtriangles = insertcommas(telemac_data.nbtriangles)
-    strnbnodes = insertcommas(telemac_data.nbnodes)
+    if telemac_data.nblayers == 1
+        telemac_data.nbtrianglesLayer = telemac_data.nbtriangles
+        telemac_data.nbnodesLayer = telemac_data.nbnodes
+    else
+        telemac_data.nbtrianglesLayer = Int32(telemac_data.nbtriangles / (telemac_data.nblayers - 1))
+        telemac_data.nbnodesLayer = Int32(telemac_data.nbnodes / telemac_data.nblayers)
+    end
+    strnbtriangles = insertcommas(telemac_data.nbtrianglesLayer)
+    strnbnodes = insertcommas(telemac_data.nbnodesLayer)
     println("$(Parameters.oksymbol) Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
 
     # read: Mesh info (ikle connectivity)

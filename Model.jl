@@ -2,7 +2,7 @@
 # Model.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
 # The Julia structure of the Telemac parameters
-# 
+#
 # Released under the MIT License
 #
 # Copyright (c) 2021 Fabrice Zaoui
@@ -29,6 +29,8 @@ module Model
         nblayers::Int32  # number of layers
         nbtriangles::Int32  # number of mesh triangles
         nbnodes::Int32  # number of mesh nodes
+        nbtrianglesLayer::Int32  # number of mesh triangles for one layer
+        nbnodesLayer::Int32  # number of mesh nodes for one layer
         nbsteps::Int32  # number of time steps
         timestep::Int32  # time step in seconds
         varnames  # names of variables

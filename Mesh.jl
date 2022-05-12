@@ -24,16 +24,16 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         println("$(Parameters.noksymbol) The first parameter is not a Data struct")
         return
     end
-    if data.nblayers > 1
-        println("$(Parameters.noksymbol) 3D case not yet implemented...")
-        return
-    end
+    #if data.nblayers > 1
+    #    println("$(Parameters.noksymbol) 3D case not yet implemented...")
+    #    return
+    #end
 
     area = 0.
-    triarea = Array{data.typefloat, 1}(undef, data.nbtriangles)
-    triquality = Array{data.typefloat, 1}(undef, data.nbtriangles)
+    triarea = Array{data.typefloat, 1}(undef, data.nbtrianglesLayer)
+    triquality = Array{data.typefloat, 1}(undef, data.nbtrianglesLayer)
     cte = 4 * sqrt(3)
-    for t in 1:data.nbtriangles
+    for t in 1:data.nbtrianglesLayer
         pt1 = data.ikle[t, 1]
         pt2 = data.ikle[t, 2]
         pt3 = data.ikle[t, 3]
@@ -59,16 +59,6 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         b = round(i * 0.1, digits = 1)
         println("\t$a...$b: $(histqual[i])")
     end
-    # edges = histo.edges[1]
-    # for i = 2:length(edges)
-    #     a = round(edges[i-1], digits = 2)
-    #     b = round(edges[i], digits = 2)
-    #     println("\t$a...$b: $(histqual[i-1])")
-    # end
-    #= sortqualval = [badqualval badqualind]
-    sortqualval = sortslices(sortqualval, dims=1)
-    badqualval = sortqualval[:, 1]
-    badqualind = round.(Int, sortqualval[:, 2]) =#
 
     if figopt
         area = round(area * 0.5e-6, digits = 2)
@@ -76,9 +66,9 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
 
         # Mesh: get all segments
         ikle2 = sort(data.ikle, dims = 2)
-        segments = Array{Tuple{Int32, Int32}}(undef, data.nbtriangles * 3, 1)
+        segments = Array{Tuple{Int32, Int32}}(undef, data.nbtrianglesLayer * 3, 1)
         k = 1
-        for t in 1:data.nbtriangles
+        for t in 1:data.nbtrianglesLayer
             segments[k] = (ikle2[t, 1], ikle2[t, 2])
             k += 1
             segments[k] = (ikle2[t, 1], ikle2[t, 3])
@@ -192,7 +182,7 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         fig = Figure(resolution = (1280, 1024))
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
         ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
-        ax1.title = "Mesh ($(data.nbtriangles) triangles)"
+        ax1.title = "Mesh ($(data.nbtrianglesLayer) triangles)"
         ax2.title = "Boundary ($perimeter km) - $strbadqualnumber bad triangles"
         ax1.xlabel = "x-coordinates (m)"
         ax2.xlabel = "x-coordinates (m)"
