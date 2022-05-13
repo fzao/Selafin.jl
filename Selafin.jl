@@ -33,7 +33,7 @@ using .Model
 
 
 # Selafin file example
-filename = "tests/malpasset.slf"
+filename = "tests/t2d_malpasset.slf"
 
 # read file
 data = Read(filename);
