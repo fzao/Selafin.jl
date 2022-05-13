@@ -48,7 +48,7 @@ function Read(filename)
         sizeunit = "GB"
     else
         readbytesize = bytesize / filesizeunit["TB"]
-        sizeunit = "GB"
+        sizeunit = "TB"
     end
     intreadbytesize = UInt16(round(readbytesize))
     println("$(Parameters.oksymbol) File $(telemac_data.filename) of size: $intreadbytesize $sizeunit")
