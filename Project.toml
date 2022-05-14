@@ -1,0 +1,12 @@
+name = "Selafin"
+uuid = "6cae1b32-c579-48cf-a312-754d5539f064"
+authors = ["Fabrice ZAOUI <fabrice.zaoui@edf.fr>"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

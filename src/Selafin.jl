@@ -15,34 +15,24 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
-using GLMakie
-using Dates
-using BenchmarkTools
-using StatsBase
-include("./Distance.jl")
-include("./Utils.jl")
-include("./Parameters.jl")
-include("./Model.jl")
-include("./Read.jl")
-include("./Mesh.jl")
-include("./Variables.jl")
-using .Distance
-using .Utils
-using .Parameters
-using .Model
+module Selafin
 
+    # external dependencies
+    using GLMakie
+    using Dates
+    using StatsBase
 
-# Selafin file example
-filename = "tests/t2d_malpasset.slf"
+    # local functions and modules
+    include("./Distance.jl")
+    include("./Utils.jl")
+    include("./Parameters.jl")
+    include("./Model.jl")
+    include("./Read.jl")
+    include("./Mesh.jl")
+    include("./Variables.jl")
+    using .Distance
+    using .Utils
+    using .Parameters
+    using .Model
 
-# read file
-data = Read(filename);
-
-# mesh quality
-qual = Quality(data);
-
-# variable values
-val = Get(data, 3, 1);
-
-
-
+end # module
