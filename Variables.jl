@@ -87,7 +87,8 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     maxval = round(maximum(variables), digits = 2)
     varname = lstrip(rstrip(data.varnames[novar]))
     timesec = (notime - 1) * data.timestep
-    println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(timesec) s) with:")
+    strtime = convertSeconds(timesec)
+    println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(strtime) elapsed) with:")
     println("\t Min. value: $minval")
     println("\t Max. value: $maxval")
     println("\t Mean: $meanval")
@@ -95,7 +96,7 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
 
     if figopt
         fig = Figure()
-        Axis(fig[1, 1], title=data.varnames[novar]*" TIME_STEP($(notime)) "*" NB_LAYER($(noplane)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        Axis(fig[1, 1], title=data.varnames[novar]*" TIME($(strtime)) "*" NB_LAYER($(noplane)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         maxvar = maximum(variables)
         minvar = minimum(variables)
         if minvar == maxvar

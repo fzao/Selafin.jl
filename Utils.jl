@@ -16,8 +16,18 @@
 #
 module Utils
 
-    export insertcommas
+    export insertcommas, convertSeconds
 
     insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
+
+    function convertSeconds(seconds)
+
+        days = seconds ÷ 86400
+        hours = (seconds ÷ 3600) - (days * 24)
+        minutes = (seconds ÷ 60) - (days * 1440) - (hours * 60)
+        seconds = seconds % 60
+
+        return string(days)*"d:"*string(hours)*"h:"*string(minutes)*"m:"*string(seconds)*'s'
+    end
 
 end
