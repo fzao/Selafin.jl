@@ -133,10 +133,9 @@ Requirements
 Julia package dependencies
 ==========================
 
-- GLMakie
-- Dates
-- BenchmarkTools
-- StatsBase
+- [GLMakie](https://makie.juliaplots.org/stable/)
+- [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/)
+- [StatsBase](https://juliastats.org/StatsBase.jl/stable/)
 
 License
 =======
