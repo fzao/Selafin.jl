@@ -3,7 +3,24 @@ Telemac Selafin file reader in Julia
 
 This program is a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language.
 
-Purpose: get info on the Telemac result file (2D/3D values and 2D mesh)
+Purpose: get info and analyze the Telemac 2D/3D results (values and mesh)
+
+## Using Selafin.jl
+
+In the package directory and from the package manager, activate *Selafin.jl*:
+
+<p align="left">
+  <img src="./fig/activate1.png" width="220"/>
+</p>
+<p align="left">
+  <img src="./fig/activate2.png" width="140"/>
+</p>
+
+Then use *Selafin.jl* from the Julia REPL:
+
+<p align="left">
+  <img src="./fig/using.png" width="200"/>
+</p>
 
 ## Telemac 2D example
 
@@ -30,7 +47,7 @@ And in return, the user will have access to a Julia data structure:
 The mesh can be analyzed with the *Mesh()* function by giving the data structure:
 
 <p align="left">
-  <img src="./fig/t2d_display3.png" width="200"/>
+  <img src="./fig/t2d_display3.png" width="280"/>
 </p>
 
 The mesh quality is then displayed with the following histogram:
@@ -42,7 +59,7 @@ The mesh quality is then displayed with the following histogram:
 The mesh can also be viewed by adding the logical parameter:
 
 <p align="left">
-  <img src="./fig/t2d_display5.png" width="300"/>
+  <img src="./fig/t2d_display5.png" width="350"/>
 </p>
 
 <p align="center">
@@ -52,7 +69,7 @@ The mesh can also be viewed by adding the logical parameter:
 To get the results on the water depth, the *Get()* function has to be used. Here, the water depth is the variable number 3. As only one time step is available, the call will be:
 
 <p align="left">
-  <img src="./fig/t2d_display7.png" width="600"/>
+  <img src="./fig/t2d_display7.png" width="700"/>
 </p>
 
 In return, the user will have access to a vector (1D real array):
@@ -90,7 +107,7 @@ This case has 4 variables, 9 time steps and 6 layers.
 The mesh can also be analyzed and viewed by adding the logical parameter:
 
 <p align="left">
-  <img src="./fig/t2d_display5.png" width="300"/>
+  <img src="./fig/t2d_display5.png" width="350"/>
 </p>
 
 <p align="center">
@@ -100,7 +117,7 @@ The mesh can also be analyzed and viewed by adding the logical parameter:
 Finally, in order to get and see the vertical velocity (*w*), at the time step number 5 and for the layer no. 6, the function call will be:
 
 <p align="left">
-  <img src="./fig/t3d_display3.png" width="300"/>
+  <img src="./fig/t3d_display3.png" width="375"/>
 </p>
 
 <p align="center">
