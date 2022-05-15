@@ -5,7 +5,7 @@ values = Observable(Selafin.Get(data,1,1,1));
 varnumber = Observable(1)
 layernumber = Observable(1)
 colorschoice = Observable(:viridis)
-scientific = [:acton, :bamako, :batlow, :viridis]
+scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
 timenumber = 1
 
 fig = Figure(resolution = (1440, 1080))
