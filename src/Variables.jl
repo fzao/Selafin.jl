@@ -88,7 +88,7 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     varname = lstrip(rstrip(data.varnames[novar]))
     timesec = (notime - 1) * data.timestep
     strtime = convertSeconds(timesec)
-    println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(strtime) elapsed) with:")
+    println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(strtime) elapsed) for the layer #$(noplane) with:")
     println("\t Min. value: $minval")
     println("\t Max. value: $maxval")
     println("\t Mean: $meanval")
