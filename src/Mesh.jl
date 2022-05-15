@@ -179,18 +179,20 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
         ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
         ax1.title = "Mesh ($(data.nbtrianglesLayer) triangles)"
-        ax2.title = "Boundary ($perimeter km) - $strbadqualnumber bad triangles"
+        ax2.title = "Boundary ($perimeter km) - $strbadqualnumber bad triangle(s)"
         ax1.xlabel = "x-coordinates (m)"
         ax2.xlabel = "x-coordinates (m)"
         ax1.ylabel = "y-coordinates (m)"
         ax2.ylabel = "y-coordinates (m)"
         if badqualnumber > 0
-            minval = minimum(badqualval)
-            maxval = maximum(badqualval)
             lines!(fig[1, 2], ptxbad, ptybad, color = :red)
             ax3, l3 = hist(fig[2, 1], triquality)
-            ax4, l4 = hist(fig[2, 2], badqualval, color = :red)
-            ax4.title = "Bad triangles: $strbadqualnumber"
+            if badqualnumber > 1
+                ax4, l4 = hist(fig[2, 2], badqualval, color = :red)
+            else
+                ax4, l4 = barplot(fig[2, 2], badqualval, [1], color = :red, width = 0.01)
+            end
+            ax4.title = "Bad triangle(s): $strbadqualnumber"
             ax4.xlabel = "Mesh quality"
             ax4.ylabel = "Frequency"
         else
