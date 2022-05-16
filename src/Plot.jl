@@ -23,44 +23,53 @@ function Plot2D(data)
         return
     end
 
+    # observables
     values = Observable(Selafin.Get(data,1,1,1));
     varnumber = Observable(1)
     layernumber = Observable(1)
     timenumber = Observable(1)
     colorschoice = Observable(:viridis)
+
+    # colorscheme
     scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
 
+    # figure
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
     
+    # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
         values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
         timenumber[] = timeval
     end
     
+    # menu (variable number)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
     end
     
+    # menu (layer number)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
     end
     
+    # menu (colorscheme)
     colorchoice = Menu(fig, options = scientific, i_selected = 25)
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
     
+    # button (save figure)
     savefig = Button(fig, label="Save Figure")
 
+    # layout
     fig[3,1] = hgrid!(
         Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
@@ -68,6 +77,7 @@ function Plot2D(data)
         savefig
     )
 
+    # save figure on button click
     on(savefig.clicks) do clicks
         newfig = Figure(resolution = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
