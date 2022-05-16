@@ -33,7 +33,7 @@ function Plot2D(data)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
 
-    Colorbar(fig[1, 2], colormap = colorschoice)
+    Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
     
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
@@ -79,10 +79,10 @@ function Plot2D(data)
             maxvar = minvar + Parameters.eps
         end
         Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-        
-        save("toto.png", newfig, px_per_unit = 2)
+        figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+        save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
-        display(newfig)
+        display(fig)
     end
 
     display(fig)
