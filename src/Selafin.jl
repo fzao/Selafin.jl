@@ -30,7 +30,7 @@ module Selafin
     include("./Read.jl")
     include("./Mesh.jl")
     include("./Variables.jl")
-    include("./Animation.jl")
+    include("./Plot.jl")
     using .Distance
     using .Utils
     using .Parameters

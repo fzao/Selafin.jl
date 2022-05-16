@@ -95,7 +95,7 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     println("\t Median: $medval")
 
     if figopt
-        fig = Figure()
+        fig = Figure(resolution = (1280, 1024))
         Axis(fig[1, 1], title=data.varnames[novar]*" TIME($(strtime)) "*" NB_LAYER($(noplane)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         maxvar = maximum(variables)
         minvar = minimum(variables)

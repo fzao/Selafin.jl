@@ -16,7 +16,7 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
-function Anim(data)
+function Plot2D(data)
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")
@@ -30,48 +30,60 @@ function Anim(data)
     colorschoice = Observable(:viridis)
     scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
 
-    fig = Figure(resolution = (1440, 1080))
-    ax = Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+    fig = Figure(resolution = (1280, 1024))
+    Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
 
-    function updateTitle()
-        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-        ax.title = data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) "
-    end
-    
+    Colorbar(fig[1, 2], colormap = colorschoice)
     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
-    updateTitle()
     
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
         values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
         timenumber[] = timeval
-        updateTitle()
     end
     
-    varchoice = Menu(fig, options = data.varnames, prompt = "Variable name")
+    varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
-        updateTitle()
     end
     
-    layerchoice = Menu(fig, options = 1:data.nblayers, prompt = "Layer number")
+    layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        updateTitle()
     end
     
-    colorchoice = Menu(fig, options = scientific, prompt = "Colors choice")
+    colorchoice = Menu(fig, options = scientific, i_selected = 25)
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
     
+    savefig = Button(fig, label="Save Figure")
+
     fig[3,1] = hgrid!(
         Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
-        Label(fig, "Colors:"), colorchoice
-    )    
+        Label(fig, "Colors:"), colorchoice,
+        savefig
+    )
+
+    on(savefig.clicks) do clicks
+        newfig = Figure(resolution = (1280, 1024))
+        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+        maxvar = maximum(values.val)
+        minvar = minimum(values.val)
+        if minvar == maxvar
+            maxvar = minvar + Parameters.eps
+        end
+        Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
+        
+        save("toto.png", newfig, px_per_unit = 2)
+        println("$(Parameters.oksymbol) Figure saved")
+        display(newfig)
+    end
 
     display(fig)
 
