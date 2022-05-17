@@ -1,7 +1,11 @@
+<p align="left">
+  <img src="./fig/vidintro.gif" width="400"/>
+</p>
+
 Telemac Selafin file reader in Julia
 ====================================
 
-This program is a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language.
+This program is a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language (v1.7 or above required).
 
 Purpose: get info and analyze the Telemac 2D/3D results (values and mesh)
 
@@ -85,7 +89,7 @@ The result can also displayed and saved as an image by adding the logical parame
 </p>
 
 <p align="center">
-  <img src="./fig/myFirstResult.png" width="800"/>
+  <img src="./fig/myFirstResult.png" width="600"/>
 </p>
 
 ## Telemac 3D example
@@ -121,21 +125,30 @@ Finally, in order to get and see the vertical velocity (*w*), at the time step n
 </p>
 
 <p align="center">
-  <img src="./fig/t3d_display4.png" width="800"/>
+  <img src="./fig/t3d_display4.png" width="600"/>
 </p>
 
+## Plot the variables
+
+It is possible to plot the variables of Telemac interactively (see video above) with the following function:
+
+<p align="left">
+  <img src="./fig/plot_display1.png" width="220"/>
+</p>
+
+As for the other plots, it is possible to zoom in and out and export the image to a file.
 
 Requirements
 ============
 
-- Julia v1.6 or above
+- Julia v1.7 or above
 
 Julia package dependencies
 ==========================
 
 - [GLMakie](https://makie.juliaplots.org/stable/)
-- [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/)
 - [StatsBase](https://juliastats.org/StatsBase.jl/stable/)
+- [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/)
 
 License
 =======
@@ -145,6 +158,6 @@ This package is provided under the MIT license
 Contributions
 =============
 
-Contributions are always welcome ;-)
+Contributions are welcome.
 
 When contributing to **Selafin.jl** please consider discussing the changes via the issue tab.
