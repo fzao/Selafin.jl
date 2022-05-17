@@ -31,6 +31,7 @@ module Selafin
     include("./Mesh.jl")
     include("./Variables.jl")
     include("./Plot.jl")
+    include("./Histogram.jl")
     using .Distance
     using .Utils
     using .Parameters
