@@ -1,11 +1,13 @@
 <p align="left">
-  <img src="./fig/vidintro.gif" width="400"/>
+  <img src="./fig/vidintro.gif" width="300"/>
+  <img src="./fig/blank.png" width="50"/>
+  <img src="./fig/vidhisto.gif" width="320"/>
 </p>
 
 Telemac Selafin file reader in Julia
 ====================================
 
-This program is a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language (v1.7 or above required).
+This program is a reader and GPU-powered viewer (using GLMakie) of the [Telemac](www.opentelemac.org) Selafin file in the Julia programming language.
 
 Purpose: get info and analyze the Telemac 2D/3D results (values and mesh)
 
@@ -137,6 +139,14 @@ It is possible to plot the variables of Telemac interactively (see video above) 
 </p>
 
 As for the other plots, it is possible to zoom in and out and export the image to a file.
+
+## Histogram
+
+It is also possible to interactively visualize the histograms of all variables as a function of time with the command:
+
+<p align="left">
+  <img src="./fig/histo_display1.png" width="240"/>
+</p>
 
 Requirements
 ============
