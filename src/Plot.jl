@@ -34,6 +34,8 @@ function Plot2D(data)
     scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
 
     # figure
+    print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
+    flush(stdout)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
@@ -96,6 +98,7 @@ function Plot2D(data)
     end
 
     display(fig)
+    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
 
     return nothing
 end

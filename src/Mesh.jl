@@ -46,7 +46,7 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
     minqual = round(minimum(triquality), digits = 2)
     meanqual = round(mean(triquality), digits = 2)
     maxqual = round(maximum(triquality), digits = 2)
-    histo = fit(Histogram, triquality, 0:0.1:1.0)
+    histo = fit(StatsBase.Histogram, triquality, 0:0.1:1.0)
     histqual = histo.weights
     println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
     println("\t$(Parameters.smallsquare) Triangles")
@@ -175,6 +175,8 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         println("$(Parameters.oksymbol) Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
 
         # plot
+        print("$(Parameters.hand) Pending GPU-powered graphs... (this may take a while)")
+        flush(stdout)
         fig = Figure(resolution = (1280, 1024))
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
         ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
@@ -206,6 +208,7 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
             save(figname, fig, px_per_unit = 2)
         end
         display(fig)
+        println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
     end
 
     return triquality
