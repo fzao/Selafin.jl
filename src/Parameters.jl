@@ -29,6 +29,7 @@ module Parameters
     const smallsquare = Char(0x25AA)
     const delta = Char(0x394)
     const superscripttwo = Char(0x00B2)
+    const hand = Char(0x270B)
 
     # numerical zero value
     const eps = 1.e-6

@@ -29,68 +29,61 @@ function Histogram(data)
     layernumber = Observable(1)
     timenumber = Observable(1)
 
-       # recherche Xminmin Xmaxmax Yminmin Ymaxmax
-   Xminmin = Inf
-   Xmaxmax = -Inf
-   Yminmin = 0
-   Ymaxmax = 0
-   novar = 1
-   noplane = 1
-   nbins = 50
-   fid = open(data.filename, "r")
-   seek(fid, data.markposition)
-   variables = Array{data.typefloat, 1}(undef, data.nbnodesLayer * data.nblayers)
-   timevalue =  Array{Float32, 1}(undef, data.nbsteps)
-   exitloop = false
-   for t in 1:data.nbsteps
-       recloc = ntoh(read(fid, Int32))
-       timevalue[t] = ntoh(read(fid, Float32))
-       recloc = ntoh(read(fid, Int32))
-       for v in 1:data.nbvars
-           recloc = ntoh(read(fid, Int32))
-           raw_data = zeros(UInt8, recloc)
-           readbytes!(fid, raw_data, recloc)
-           variables[:] .= ntoh.(reinterpret(data.typefloat, raw_data))
-           recloc = ntoh(read(fid, Int32))
-           if v == novar
-               val = reshape(variables, data.nbnodesLayer, data.nblayers)
-               variables = val[:, noplane]
-               minvar = minimum(variables)
-               maxvar = maximum(variables)
-               if !isapprox(minvar, maxvar)
-                   if minvar < Xminmin
-                       Xminmin = minvar
-                   end
-                   if maxvar > Xmaxmax
-                       Xmaxmax = maxvar
-                   end
-                   ymax = maximum(fit(StatsBase.Histogram, variables, nbins=nbins).weights)
-                   if ymax > Ymaxmax
-                       Ymaxmax = ymax
-                   end
-               end
-           end
-       end
-   end
-   # close the Selafin file
-   close(fid)
-
-
+    # search for the axis limits of all histograms
+    nbins = 50  # optimal?
+    xybounds = zeros(Float64, data.nbvars, data.nblayers, 3)
+    xybounds[:, :, 1] .= Inf  # min(min(x(t)))
+    xybounds[:, :, 2] .= -Inf # max(max(x(t)))
+    xybounds[:, :, 3] .= 0    # max(max(y(t)))
+    variables = Array{data.typefloat, 1}(undef, data.nbnodesLayer * data.nblayers)
+    timevalue =  Array{Float32, 1}(undef, data.nbsteps)
+    fid = open(data.filename, "r")
+    seek(fid, data.markposition)
+    for t in 1:data.nbsteps
+        recloc = ntoh(read(fid, Int32))
+        timevalue[t] = ntoh(read(fid, Float32))
+        recloc = ntoh(read(fid, Int32))
+        for v in 1:data.nbvars
+            recloc = ntoh(read(fid, Int32))
+            raw_data = zeros(UInt8, recloc)
+            readbytes!(fid, raw_data, recloc)
+            variables[:] .= ntoh.(reinterpret(data.typefloat, raw_data))
+            recloc = ntoh(read(fid, Int32))
+            val = reshape(variables, data.nbnodesLayer, data.nblayers)
+            for p in 1:data.nblayers
+                isovalues = val[:, p]
+                minvar = minimum(isovalues)
+                maxvar = maximum(isovalues)
+                if !isapprox(minvar, maxvar)
+                    if minvar < xybounds[v, p, 1]
+                        xybounds[v, p, 1] = minvar
+                    end
+                    if maxvar > xybounds[v, p, 2]
+                        xybounds[v, p, 2] = maxvar
+                    end
+                    ymax = maximum(fit(StatsBase.Histogram, isovalues, nbins=nbins).weights)
+                    if ymax > xybounds[v, p, 3]
+                        xybounds[v, p, 3] = ymax
+                    end
+                end
+            end
+        end
+    end
+    close(fid)
 
     # figure
+    print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
+    flush(stdout)
     fig = Figure(resolution = (1280, 1024))
     ax = Axis(fig[1, 1], xlabel = "Values", ylabel = "Frequency")
-    limits!(ax, Xminmin, Xmaxmax, Yminmin, Ymaxmax)
-    #hist!(ax, values, bins = 25, normalization = :pdf)
+    limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     hist!(ax, values, bins = nbins, color = :gray, strokewidth = 1, strokecolor = :black)
-
 
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
         values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
         timenumber[] = timeval
-        #reset_limits!(ax)
     end
 
     # menu (variable number)
@@ -98,7 +91,7 @@ function Histogram(data)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
-        #reset_limits!(ax)
+        limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
     # menu (layer number)
@@ -106,7 +99,7 @@ function Histogram(data)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        #reset_limits!(ax)
+        limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
     # button (save figure)
@@ -138,6 +131,7 @@ function Histogram(data)
     # end
 
     display(fig)
+    println("\r$(Parameters.oksymbol) Succeeded!                                             ")
 
     return nothing
 end
