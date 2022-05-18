@@ -30,7 +30,7 @@ function Histogram(data)
     timenumber = Observable(1)
 
     # search for the axis limits of all histograms
-    nbins = 50  # optimal?
+    nbins = 50  # clearly not optimal?
     xybounds = zeros(Float64, data.nbvars, data.nblayers, 3)
     xybounds[:, :, 1] .= Inf  # min(min(x(t)))
     xybounds[:, :, 2] .= -Inf # max(max(x(t)))
@@ -61,7 +61,7 @@ function Histogram(data)
                     if maxvar > xybounds[v, p, 2]
                         xybounds[v, p, 2] = maxvar
                     end
-                    ymax = maximum(fit(StatsBase.Histogram, isovalues, nbins=nbins).weights)
+                    ymax = maximum(fit(StatsBase.Histogram, isovalues, nbins=nbins).weights)  # underestimation here?
                     if ymax > xybounds[v, p, 3]
                         xybounds[v, p, 3] = ymax
                     end
@@ -113,25 +113,19 @@ function Histogram(data)
     )
 
     # save figure on button click
-    # on(savefig.clicks) do clicks
-    #     newfig = Figure(resolution = (1280, 1024))
-    #     strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-    #     Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-    #     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
-    #     maxvar = maximum(values.val)
-    #     minvar = minimum(values.val)
-    #     if minvar == maxvar
-    #         maxvar = minvar + Parameters.eps
-    #     end
-    #     Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-    #     figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
-    #     save(figname, newfig, px_per_unit = 2)
-    #     println("$(Parameters.oksymbol) Figure saved")
-    #     display(fig)
-    # end
+    on(savefig.clicks) do clicks
+        newfig = Figure(resolution = (1280, 1024))
+        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "Values", ylabel = "Frequency")
+        hist!(values, bins = nbins, color = :gray, strokewidth = 1, strokecolor = :black)
+        figname = "Selafin Histogram "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+        save(figname, newfig, px_per_unit = 2)
+        println("$(Parameters.oksymbol) Figure saved")
+        display(fig)
+    end
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                             ")
+    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
 
     return nothing
 end
