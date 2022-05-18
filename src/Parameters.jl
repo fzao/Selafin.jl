@@ -30,11 +30,16 @@ module Parameters
     const delta = Char(0x394)
     const superscripttwo = Char(0x00B2)
     const hand = Char(0x270B)
+    const le = Char(0x2264)
+    const ge = Char(0x2265)
 
     # numerical zero value
     const eps = 1.e-6
 
     # default criteria for detecting bad triangles
     const minqualval = 0.5
+
+    # colorscheme
+    scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
 
 end

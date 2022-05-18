@@ -30,9 +30,6 @@ function Plot2D(data)
     timenumber = Observable(1)
     colorschoice = Observable(:viridis)
 
-    # colorscheme
-    scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
-
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
@@ -63,7 +60,7 @@ function Plot2D(data)
     end
     
     # menu (colorscheme)
-    colorchoice = Menu(fig, options = scientific, i_selected = 25)
+    colorchoice = Menu(fig, options = Parameters.scientific, i_selected = 25)
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
