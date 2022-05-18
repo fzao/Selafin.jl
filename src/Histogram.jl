@@ -90,7 +90,7 @@ function Histogram(data)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
+        values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 

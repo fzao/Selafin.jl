@@ -1,6 +1,6 @@
-# Plot.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
+# Percentile.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
-# 2D interactive plot with GLMakie
+# Percentile interactive plot with GLMakie
 #
 # Released under the MIT License
 #
@@ -16,7 +16,7 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
-function Plot2D(data)
+function Percentile(data)
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")
@@ -24,14 +24,31 @@ function Plot2D(data)
     end
 
     # observables
-    values = Observable(Selafin.Get(data,1,1,1));
+    x = data.x[1:data.nbnodesLayer]
+    y = data.y[1:data.nbnodesLayer]
+    values = Observable(Selafin.Get(data,1,1,1))
     varnumber = Observable(1)
     layernumber = Observable(1)
     timenumber = Observable(1)
     colorschoice = Observable(:viridis)
+    xp = Observable(x)
+    yp = Observable(y)
+    valp = Observable(values)
+    threshold = Observable(5)
+    comparison = Observable('≥')
 
-    # colorscheme
-    scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
+    # mask
+    function updatemask()
+        pval = percentile(values.val, threshold.val)
+        if comparison.val == '≥'
+             mask = values.val .>= pval
+        else
+             mask = values.val .<= pval
+        end
+        xp[] = x[mask]
+        yp[] = y[mask]
+        valp[] = values.val[mask]
+    end
 
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
@@ -39,12 +56,14 @@ function Plot2D(data)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
-    mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+    updatemask()
+    scatter!(xp, yp, color = valp.val, colormap = colorschoice)
     
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
         values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
+        updatemask()
         timenumber[] = timeval
     end
     
@@ -52,7 +71,8 @@ function Plot2D(data)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
+        updatemask()
     end
     
     # menu (layer number)
@@ -60,10 +80,11 @@ function Plot2D(data)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
         values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        updatemask()
     end
     
     # menu (colorscheme)
-    colorchoice = Menu(fig, options = scientific, i_selected = 25)
+    colorchoice = Menu(fig, options = Parameters.scientific, i_selected = 25)
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
@@ -79,23 +100,43 @@ function Plot2D(data)
         savefig
     )
 
-    # save figure on button click
-    on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
-        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
-        maxvar = maximum(values.val)
-        minvar = minimum(values.val)
-        if minvar == maxvar
-            maxvar = minvar + Parameters.eps
-        end
-        Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-        figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
-        save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
-        display(fig)
+    # menu (comparison operator)
+    compare = Menu(fig, options = [Parameters.ge, Parameters.le], i_selected = 1)
+    on(compare.selection) do selected_compare
+        #varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
+        #values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
     end
+
+    # slider (percentile)
+    percentile_slider = SliderGrid(fig[2, 1], (label = "Percentile", range = 5:5:95, startvalue = 1))
+    on(percentile_slider.sliders[1].value) do percentile
+        #values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
+        #timenumber[] = timeval
+    end
+
+    # layout
+    fig[4,1] = hgrid!(
+        Label(fig, "Variable:"), compare,
+        Label(fig, "Layer:"), percentile_slider
+    )
+
+    # save figure on button click
+    # on(savefig.clicks) do clicks
+    #     newfig = Figure(resolution = (1280, 1024))
+    #     strtime = convertSeconds((timenumber.val - 1) * data.timestep)
+    #     Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+    #     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+    #     maxvar = maximum(values.val)
+    #     minvar = minimum(values.val)
+    #     if minvar == maxvar
+    #         maxvar = minvar + Parameters.eps
+    #     end
+    #     Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
+    #     figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+    #     save(figname, newfig, px_per_unit = 2)
+    #     println("$(Parameters.oksymbol) Figure saved")
+    #     display(fig)
+    # end
 
     display(fig)
     println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
