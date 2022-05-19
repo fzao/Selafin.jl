@@ -31,26 +31,13 @@ function Percentile(data)
     threshold = Observable(5)
     comparison = Observable('≥')
 
-     # initialization
+     # initial values
     x = data.x[1:data.nbnodesLayer]
     y = data.y[1:data.nbnodesLayer]
     values = Selafin.Get(data,1,1,1)
-    xp = x
-    yp = y
-    valp = values
-
-    # mask
-    function updatemask()
-        pval = percentile(values, threshold.val)
-        if comparison.val == '≥'
-             mask = values .>= pval
-        else
-             mask = values .<= pval
-        end
-        xp = x[mask]
-        yp = y[mask]
-        valp = values[mask]
-    end
+    xp = Observable(x)
+    yp = Observable(y)
+    valp = Observable(values)
 
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
@@ -58,15 +45,39 @@ function Percentile(data)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "xcoordinates (m)", ylabel = "ycoordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
-    updatemask()
+    pval = percentile(values, threshold.val)
+    if comparison.val == '≥'
+         mask = values .>= pval
+    else
+         mask = values .<= pval
+    end
+    xp[][mask] .= x[mask]
+    yp[][mask] .= y[mask]
+    valp[][mask] = values[mask]
+    xp[][.!mask] .= NaN
+    yp[][.!mask] .= NaN
+    #valp[].val[.!mask] = values[mask] 
     scatter!(xp, yp, color = valp, colormap = colorschoice)
     
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
         values = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
-        updatemask()
         timenumber[] = timeval
+        pval = percentile(values, threshold.val)
+        if comparison.val == '≥'
+             mask = values .>= pval
+        else
+             mask = values .<= pval
+        end
+        xp[][mask] .= x[mask]
+        yp[][mask] .= y[mask]
+        valp[][mask] = values[mask]
+        xp[][.!mask] .= NaN
+        yp[][.!mask] .= NaN
+        valp[][.!mask] .= NaN
+        #valp[].val[.!mask] = values[mask] 
+        scatter!(xp, yp, color = valp, colormap = colorschoice)
     end
     
     # menu (variable number)
@@ -74,15 +85,39 @@ function Percentile(data)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
         values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        updatemask()
+        pval = percentile(values, threshold.val)
+        if comparison.val == '≥'
+             mask = values .>= pval
+        else
+             mask = values .<= pval
+        end
+        xp[][mask] .= x[mask]
+        yp[][mask] .= y[mask]
+        valp[][mask] = values[mask]
+        xp[][.!mask] .= NaN
+        yp[][.!mask] .= NaN
+        #valp[].val[.!mask] = values[mask]
+        scatter!(xp, yp, color = valp, colormap = colorschoice)
     end
     
     # menu (layer number)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        updatemask()
+        values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        pval = percentile(values, threshold.val)
+        if comparison.val == '≥'
+             mask = values .>= pval
+        else
+             mask = values .<= pval
+        end
+        xp[][mask] .= x[mask]
+        yp[][mask] .= y[mask]
+        valp[][mask] = values[mask]
+        xp[][.!mask] .= NaN
+        yp[][.!mask] .= NaN
+        #valp[].val[.!mask] = values[mask]
+        scatter!(xp, yp, color = valp, colormap = colorschoice)
     end
     
     # menu (colorscheme)
@@ -111,9 +146,22 @@ function Percentile(data)
 
     # slider (percentile)
     percentile_slider = SliderGrid(fig[2, 1], (label = "Percentile", range = 5:5:95, startvalue = 1))
-    on(percentile_slider.sliders[1].value) do percentile
-        #values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
-        #timenumber[] = timeval
+    on(percentile_slider.sliders[1].value) do perce
+        threshold[] = perce
+        values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        pval = percentile(values, threshold.val)
+        if comparison.val == '≥'
+             mask = values .>= pval
+        else
+             mask = values .<= pval
+        end
+        xp[][mask] .= x[mask]
+        yp[][mask] .= y[mask]
+        valp[][mask] = values[mask]
+        xp[][.!mask] .= NaN
+        yp[][.!mask] .= NaN
+        #valp[].val[.!mask] = values[mask]
+        scatter!(xp, yp, color = valp, colormap = colorschoice)
     end
 
     # layout

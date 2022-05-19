@@ -32,6 +32,7 @@ module Selafin
     include("./Variables.jl")
     include("./Plot.jl")
     include("./Histogram.jl")
+    include("./Percentile.jl")
     using .Distance
     using .Utils
     using .Parameters
