@@ -45,7 +45,7 @@ function Plot2D(data)
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
-        values[] = allvalues[][timeval, :]  # Selafin.Get(data, varnumber.val, timeval, layernumber.val)
+        values[] = allvalues[][timeval, :]
         timenumber[] = timeval
     end
 
@@ -57,7 +57,7 @@ function Plot2D(data)
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Done!                                   ")
-        values[] = allvalues[][timenumber.val, :]  # Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        values[] = allvalues[][timenumber.val, :]
     end
 
     # menu (layer number)
@@ -68,7 +68,7 @@ function Plot2D(data)
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Done!                                   ")
-        values[] = allvalues[][timenumber.val, :]  # Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        values[] = allvalues[][timenumber.val, :]
     end
 
     # menu (colorscheme)

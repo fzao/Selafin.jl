@@ -34,6 +34,8 @@ function Histogram(data)
     timenumber = Observable(1)
 
     # search for the axis limits of all histograms
+    print("$(Parameters.hand) Histogram bounds estimation...")
+    flush(stdout)
     nbins = 50  # clearly not optimal?
     xybounds = zeros(Float64, data.nbvars, data.nblayers, 3)
     xybounds[:, :, 1] .= Inf  # min(min(x(t)))
@@ -74,6 +76,7 @@ function Histogram(data)
         end
     end
     close(fid)
+    println("\r$(Parameters.oksymbol) Done!                                   ")
 
     # figure
     print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
@@ -86,7 +89,7 @@ function Histogram(data)
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
-        values[] = values[] = allvalues[][timeval, :]  # Selafin.Get(data, varnumber.val, timeval, layernumber.val)
+        values[] = values[] = allvalues[][timeval, :]
         timenumber[] = timeval
     end
 
@@ -98,7 +101,7 @@ function Histogram(data)
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Done!                                   ")
-        values[] = allvalues[][timenumber.val, :]  #Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
@@ -110,7 +113,7 @@ function Histogram(data)
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Done!                                   ")
-        values[] = allvalues[][timenumber.val, :]  #Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
