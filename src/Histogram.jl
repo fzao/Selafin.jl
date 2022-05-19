@@ -27,7 +27,7 @@ function Histogram(data)
     print("$(Parameters.hand) Memory caching...")
     flush(stdout)
     allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Done!                                   ")
+    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
     values = Observable(allvalues[][1, :])
     varnumber = Observable(1)
     layernumber = Observable(1)
@@ -76,7 +76,7 @@ function Histogram(data)
         end
     end
     close(fid)
-    println("\r$(Parameters.oksymbol) Done!                                   ")
+    println("\r$(Parameters.oksymbol) Histogram bounds estimation...Done!")
 
     # figure
     print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
@@ -100,7 +100,7 @@ function Histogram(data)
         print("$(Parameters.hand) Memory caching...")
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Done!                                   ")
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
@@ -112,7 +112,7 @@ function Histogram(data)
         print("$(Parameters.hand) Memory caching...")
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Done!                                   ")
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end

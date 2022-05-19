@@ -27,7 +27,7 @@ function Plot2D(data)
     print("$(Parameters.hand) Memory caching...")
     flush(stdout)
     allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Done!                                   ")
+    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
     values = Observable(allvalues[][1, :])
     varnumber = Observable(1)
     layernumber = Observable(1)
@@ -56,7 +56,7 @@ function Plot2D(data)
         print("$(Parameters.hand) Memory caching...")
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Done!                                   ")
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][timenumber.val, :]
     end
 
@@ -67,7 +67,7 @@ function Plot2D(data)
         print("$(Parameters.hand) Memory caching...")
         flush(stdout)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Done!                                   ")
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][timenumber.val, :]
     end
 
