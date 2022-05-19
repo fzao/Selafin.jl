@@ -24,7 +24,11 @@ function Histogram(data)
     end
 
     # observables
-    values = Observable(Selafin.Get(data,1,1,1));
+    print("$(Parameters.hand) Memory caching...")
+    flush(stdout)
+    allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
+    println("\r$(Parameters.oksymbol) Done!                                   ")
+    values = Observable(allvalues[][1, :])
     varnumber = Observable(1)
     layernumber = Observable(1)
     timenumber = Observable(1)
@@ -82,7 +86,7 @@ function Histogram(data)
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
-        values[] = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
+        values[] = values[] = allvalues[][timeval, :]  # Selafin.Get(data, varnumber.val, timeval, layernumber.val)
         timenumber[] = timeval
     end
 
@@ -90,7 +94,11 @@ function Histogram(data)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+        println("\r$(Parameters.oksymbol) Done!                                   ")
+        values[] = allvalues[][timenumber.val, :]  #Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
@@ -98,7 +106,11 @@ function Histogram(data)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        values[] = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+        println("\r$(Parameters.oksymbol) Done!                                   ")
+        values[] = allvalues[][timenumber.val, :]  #Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
 
