@@ -24,150 +24,157 @@ function Percentile(data)
     end
 
     # observables
+    print("$(Parameters.hand) Memory caching...")
+    flush(stdout)
+    allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
+    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    values = Observable(allvalues[][1, :])
     varnumber = Observable(1)
     layernumber = Observable(1)
     timenumber = Observable(1)
-    colorschoice = Observable(:viridis)
+    colorschoice = Observable(:Reds)
     threshold = Observable(5)
     comparison = Observable('≥')
 
      # initial values
     x = data.x[1:data.nbnodesLayer]
     y = data.y[1:data.nbnodesLayer]
-    values = Selafin.Get(data,1,1,1)
-    xp = Observable(x)
-    yp = Observable(y)
-    valp = Observable(values)
-
+    
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "xcoordinates (m)", ylabel = "ycoordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
-    pval = percentile(values, threshold.val)
+    pval = percentile(abs.(values.val), threshold.val)
     if comparison.val == '≥'
-         mask = values .>= pval
+        mask = abs.(values.val) .>= pval
     else
-         mask = values .<= pval
+        mask = abs.(values.val) .<= pval
     end
-    xp[][mask] .= x[mask]
-    yp[][mask] .= y[mask]
-    valp[][mask] = values[mask]
-    xp[][.!mask] .= NaN
-    yp[][.!mask] .= NaN
-    #valp[].val[.!mask] = values[mask] 
-    scatter!(xp, yp, color = valp, colormap = colorschoice)
+    values[][.!mask] .= NaN
+    function dessin(values)
+        scatter!(fig[1, 1], x, y, color = values, marker = Parameters.circle, colormap = colorschoice, overdraw = false)
+    end
+    dessin(values)
     
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
-        values = Selafin.Get(data, varnumber.val, timeval, layernumber.val)
-        timenumber[] = timeval
-        pval = percentile(values, threshold.val)
+        values[] = allvalues[][timeval, :]
+        pval = percentile(abs.(values.val), threshold.val)
         if comparison.val == '≥'
-             mask = values .>= pval
+            mask = abs.(values.val) .>= pval
         else
-             mask = values .<= pval
+            mask = abs.(values.val) .<= pval
         end
-        xp[][mask] .= x[mask]
-        yp[][mask] .= y[mask]
-        valp[][mask] = values[mask]
-        xp[][.!mask] .= NaN
-        yp[][.!mask] .= NaN
-        valp[][.!mask] .= NaN
-        #valp[].val[.!mask] = values[mask] 
-        scatter!(xp, yp, color = valp, colormap = colorschoice)
+        values[][.!mask] .= NaN
+        timenumber[] = timeval
     end
     
     # menu (variable number)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        pval = percentile(values, threshold.val)
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        values[] = allvalues[][timenumber.val, :]
+        pval = percentile(abs.(values.val), threshold.val)
         if comparison.val == '≥'
-             mask = values .>= pval
+            mask = abs.(values.val) .>= pval
         else
-             mask = values .<= pval
+            mask = abs.(values.val) .<= pval
         end
-        xp[][mask] .= x[mask]
-        yp[][mask] .= y[mask]
-        valp[][mask] = values[mask]
-        xp[][.!mask] .= NaN
-        yp[][.!mask] .= NaN
-        #valp[].val[.!mask] = values[mask]
-        scatter!(xp, yp, color = valp, colormap = colorschoice)
+        values[][.!mask] .= NaN
     end
     
     # menu (layer number)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        pval = percentile(values, threshold.val)
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        values[] = allvalues[timenumber.val, :]
+        pval = percentile(abs.(values.val), threshold.val)
         if comparison.val == '≥'
-             mask = values .>= pval
+            mask = abs.(values.val) .>= pval
         else
-             mask = values .<= pval
+            mask = abs.(values.val) .<= pval
         end
-        xp[][mask] .= x[mask]
-        yp[][mask] .= y[mask]
-        valp[][mask] = values[mask]
-        xp[][.!mask] .= NaN
-        yp[][.!mask] .= NaN
-        #valp[].val[.!mask] = values[mask]
-        scatter!(xp, yp, color = valp, colormap = colorschoice)
+        values[][.!mask] .= NaN
     end
     
     # menu (colorscheme)
-    colorchoice = Menu(fig, options = Parameters.scientific, i_selected = 25)
+    colorchoice = Menu(fig, options = Parameters.pcent, i_selected = 1)
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
-    
+
+    # menu (comparison operator)
+    compare = Menu(fig, options = [Parameters.ge, Parameters.le], i_selected = 1)
+    on(compare.selection) do selected_compare
+        comparison[] = selected_compare
+        values[] = allvalues[][timenumber.val, :]
+        pval = percentile(abs.(values.val), threshold.val)
+        if comparison.val == '≥'
+            mask = abs.(values.val) .>= pval
+        else
+            mask = abs.(values.val) .<= pval
+        end
+        values[][.!mask] .= NaN
+        dessin(values)
+    end
+
+    # slider (percentile)
+    percentile_slider = SliderGrid(fig, (label = "Percentile", range = 5:5:95, startvalue = 1))
+    on(percentile_slider.sliders[1].value) do perce
+        threshold[] = perce
+        values[] = allvalues[][timenumber.val, :]
+        pval = percentile(abs.(values.val), threshold.val)
+        if comparison.val == '≥'
+            mask = abs.(values.val) .>= pval
+        else
+            mask = abs.(values.val) .<= pval
+        end
+        values[][.!mask] .= NaN
+    end
+
     # button (save figure)
     savefig = Button(fig, label="Save Figure")
+    # save figure on button click
+    # on(savefig.clicks) do clicks
+    #     newfig = Figure(resolution = (1280, 1024))
+    #     strtime = convertSeconds((timenumber.val  1) * data.timestep)
+    #     Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "xcoordinates (m)", ylabel = "ycoordinates (m)")
+    #     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+    #     maxvar = maximum(values.val)
+    #     minvar = minimum(values.val)
+    #     if minvar == maxvar
+    #         maxvar = minvar + Parameters.eps
+    #     end
+    #     Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
+    #     figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+    #     save(figname, newfig, px_per_unit = 2)
+    #     println("$(Parameters.oksymbol) Figure saved")
+    #     display(fig)
+    # end
 
     # layout
     fig[3,1] = hgrid!(
         Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
-        Label(fig, "Colors:"), colorchoice,
-        savefig
+        Label(fig, "Colors:"), colorchoice
     )
-
-    # menu (comparison operator)
-    compare = Menu(fig, options = [Parameters.ge, Parameters.le], i_selected = 1)
-    on(compare.selection) do selected_compare
-        #varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        #values[] = Selafin.Get(data,varnumber.val, timenumber.val, 1)
-    end
-
-    # slider (percentile)
-    percentile_slider = SliderGrid(fig[2, 1], (label = "Percentile", range = 5:5:95, startvalue = 1))
-    on(percentile_slider.sliders[1].value) do perce
-        threshold[] = perce
-        values = Selafin.Get(data,varnumber.val, timenumber.val, layernumber.val)
-        pval = percentile(values, threshold.val)
-        if comparison.val == '≥'
-             mask = values .>= pval
-        else
-             mask = values .<= pval
-        end
-        xp[][mask] .= x[mask]
-        yp[][mask] .= y[mask]
-        valp[][mask] = values[mask]
-        xp[][.!mask] .= NaN
-        yp[][.!mask] .= NaN
-        #valp[].val[.!mask] = values[mask]
-        scatter!(xp, yp, color = valp, colormap = colorschoice)
-    end
 
     # layout
     fig[4,1] = hgrid!(
-        Label(fig, "Variable:"), compare,
-        Label(fig, "Layer:"), percentile_slider
+        Label(fig, "Operator:"), compare,
+        Label(fig, "Layer:"), percentile_slider,
+        savefig
     )
 
     # save figure on button click

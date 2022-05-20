@@ -32,6 +32,7 @@ module Parameters
     const hand = Char(0x270B)
     const le = Char(0x2264)
     const ge = Char(0x2265)
+    const circle = Char(0x25CF)
 
     # numerical zero value
     const eps = 1.e-6
@@ -41,5 +42,6 @@ module Parameters
 
     # colorscheme
     scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
+    pcent = [:Reds, :linear_blue_95_50_c20_n256, :tempo, :binary]
 
 end
