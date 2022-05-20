@@ -114,3 +114,53 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
 
     return variables
 end
+
+function GetAllTime(data, novar=0, noplane=1)
+    if typeof(data) != Data
+        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        return
+    end
+    if novar <= 0
+        println("$(Parameters.noksymbol) The variable number is not positive")
+        return
+    elseif novar > data.nbvars
+        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        return
+    end
+    if noplane < 1
+        println("$(Parameters.noksymbol) The layer number is not positive")
+        return
+    end
+    if noplane > data.nblayers
+        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        return
+    end
+
+    fid = open(data.filename, "r")
+    seek(fid, data.markposition)
+
+    variables = Array{data.typefloat, 1}(undef, data.nbnodesLayer * data.nblayers)
+    varalltime = Array{data.typefloat, 2}(undef, data.nbsteps, data.nbnodesLayer)
+    timevalue =  Array{Float32, 1}(undef, data.nbsteps)
+    for t in 1:data.nbsteps
+        recloc = ntoh(read(fid, Int32))
+        timevalue[t] = ntoh(read(fid, Float32))
+        recloc = ntoh(read(fid, Int32))
+        for v in 1:data.nbvars
+            recloc = ntoh(read(fid, Int32))
+            raw_data = zeros(UInt8, recloc)
+            readbytes!(fid, raw_data, recloc)
+            variables[:] .= ntoh.(reinterpret(data.typefloat, raw_data))
+            recloc = ntoh(read(fid, Int32))
+            if v == novar
+                # reshape and extract
+                varalltime[t, :] = reshape(variables, data.nbnodesLayer, data.nblayers)[:, noplane]
+            end
+        end
+    end
+
+    # close the Selafin file
+    close(fid)
+
+    return varalltime
+end
