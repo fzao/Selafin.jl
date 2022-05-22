@@ -42,6 +42,5 @@ module Parameters
 
     # colorscheme
     scientific = [:acton, :bamako, :batlow, :berlin, :bilbao, :broc, :buda, :cork, :davos, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lisbon, :nuuk, :oleron, :oslo, :roma, :tofino, :tokyo, :turku, :vik, :viridis]
-    pcent = [:Reds, :linear_blue_95_50_c20_n256, :tempo, :binary]
 
 end
