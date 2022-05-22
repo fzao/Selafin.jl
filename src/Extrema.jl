@@ -160,6 +160,23 @@ function Extrema(data, nbpoints = 30)
   
     # button (save figure)
     savefig = Button(fig, label="Save Figure")
+    on(savefig.clicks) do clicks
+        newfig = Figure(resolution = (1280, 1024))
+        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        scatter!(newfig[1, 1], x, y, color = (:gray, 0.5), marker = '.', markersize = 20)
+        scatter!(newfig[1, 1], xp, yp, color = valp, marker = Parameters.circle, colormap = colorschoice)
+        maxvar = maximum(valp.val)
+        minvar = minimum(valp.val)
+        if minvar == maxvar
+            maxvar = minvar + Parameters.eps
+        end
+        Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
+        figname = "Selafin Extrema "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+        save(figname, newfig, px_per_unit = 2)
+        println("$(Parameters.oksymbol) Figure saved")
+        display(fig)
+    end
 
     # layout
     fig[3,1] = hgrid!(
