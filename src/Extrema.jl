@@ -1,6 +1,6 @@
-# Percentile.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
+# Extrema.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
-# Percentile interactive plot with GLMakie
+# Min and Max interactive plot with GLMakie
 #
 # Released under the MIT License
 #
