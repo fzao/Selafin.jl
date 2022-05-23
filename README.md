@@ -1,7 +1,9 @@
 <p align="left">
-  <img src="./fig/vidintro.gif" width="300"/>
+  <img src="./fig/vidintro.gif" width="200"/>
   <img src="./fig/blank.png" width="50"/>
-  <img src="./fig/vidhisto.gif" width="320"/>
+  <img src="./fig/vidhisto.gif" width="220"/>
+  <img src="./fig/blank.png" width="25"/>
+  <img src="./fig/vidextre.gif" width="220"/>
 </p>
 
 Telemac Selafin file reader in Julia
@@ -146,6 +148,14 @@ It is also possible to interactively visualize the histograms of all variables a
 
 <p align="left">
   <img src="./fig/histo_display1.png" width="240"/>
+</p>
+
+## Extrema
+
+Only the largest or the smallest values of a single variable are dynamically selected and displayed using the *Extrema()* function. For instance, to show only the top ten values, use the following code:
+
+<p align="left">
+  <img src="./fig/extre_display1.png" width="250"/>
 </p>
 
 Requirements
