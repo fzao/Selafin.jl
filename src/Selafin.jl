@@ -18,8 +18,9 @@
 module Selafin
 
     # external dependencies
-    using GLMakie
     using Dates
+    using GeometryBasics
+    using GLMakie
     using StatsBase
 
     # local functions and modules
@@ -30,7 +31,8 @@ module Selafin
     include("./Read.jl")
     include("./Mesh.jl")
     include("./Variables.jl")
-    include("./Plot.jl")
+    include("./Plot2D.jl")
+    include("./Plot3D.jl")
     include("./Histogram.jl")
     include("./Extrema.jl")
     using .Distance
