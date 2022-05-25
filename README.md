@@ -134,15 +134,21 @@ Finally, in order to get and see the vertical velocity (*w*), at the time step n
 
 ## Plot the variables
 
-It is possible to plot the variables of Telemac interactively (see video above) with the following function:
+It is possible to plot the listed variables of Telemac interactively (see video above) with the following function:
 
 <p align="left">
   <img src="./fig/plot_display1.png" width="200"/>
 </p>
 
+For the velocity field, use the following function to see the corresponding vector plot:
+
+<p align="left">
+  <img src="./fig/plot_display1bis.png" width="225"/>
+</p>
+
 As for the other plots, it is possible to zoom in and out and export the image to a file.
 
-For a simple 3D interactive plot of the bottom elevation, use the following function:
+And for a simple 3D interactive plot of the bottom elevation, use the following function:
 
 <p align="left">
   <img src="./fig/plot_display2.png" width="350"/>
