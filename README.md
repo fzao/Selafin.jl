@@ -168,7 +168,7 @@ It is also possible to interactively visualize the histograms of all variables a
 
 ## Extrema
 
-Only the largest or the smallest values of a single variable are dynamically selected and displayed using the *Extrema()* function. For instance, to show only the top ten values, use the following code:
+Only the largest or the smallest values of a single variable are dynamically selected and displayed when using the *Extrema()* function. For instance, to show only the top ten values, use the following code:
 
 <p align="left">
   <img src="./fig/extre_display1.png" width="250"/>
