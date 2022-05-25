@@ -137,10 +137,20 @@ Finally, in order to get and see the vertical velocity (*w*), at the time step n
 It is possible to plot the variables of Telemac interactively (see video above) with the following function:
 
 <p align="left">
-  <img src="./fig/plot_display1.png" width="220"/>
+  <img src="./fig/plot_display1.png" width="200"/>
 </p>
 
 As for the other plots, it is possible to zoom in and out and export the image to a file.
+
+For a simple 3D interactive plot of the bottom elevation, use the following function:
+
+<p align="left">
+  <img src="./fig/plot_display2.png" width="350"/>
+</p>
+
+<p align="center">
+  <img src="./fig/3D_view.png" width="300"/>
+</p>
 
 ## Histogram
 
