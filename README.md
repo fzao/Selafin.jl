@@ -177,6 +177,7 @@ Julia package dependencies
 ==========================
 
 - [GLMakie](https://makie.juliaplots.org/stable/)
+- [GeometryBasics](https://juliageometry.github.io/GeometryBasics.jl/stable/)
 - [StatsBase](https://juliastats.org/StatsBase.jl/stable/)
 - [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/)
 
