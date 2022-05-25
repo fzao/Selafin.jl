@@ -33,6 +33,7 @@ module Selafin
     include("./Variables.jl")
     include("./Plot2D.jl")
     include("./Plot3D.jl")
+    include("./PlotField.jl")
     include("./Histogram.jl")
     include("./Extrema.jl")
     using .Distance

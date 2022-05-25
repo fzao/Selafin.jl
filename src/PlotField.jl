@@ -1,6 +1,6 @@
-# Plot2D.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
+# PlotField.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
-# 2D interactive plot with GLMakie
+# 2D interactive plot of velocity field with GLMakie
 #
 # Released under the MIT License
 #
@@ -16,23 +16,50 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
-function Plot2D(data)
+function PlotField(data)
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")
         return
     end
+    numu = 0
+    for i in 1:data.nbvars
+        if data.varnames[i][1:10] == "VELOCITY U" || data.varnames[i][1:9] == "VITESSE U"
+            numu = i
+            break
+        end
+    end
+    numv = 0
+    for i in 1:data.nbvars
+        if data.varnames[i][1:10] == "VELOCITY V" || data.varnames[i][1:9] == "VITESSE V"
+            numv = i
+            break
+        end
+    end
+    if numu == 0 || numv == 0
+        println("$(Parameters.noksymbol) No velocity field found in data")
+        return
+    else
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        utime = Observable(Selafin.GetAllTime(data, numu, 1))
+        vtime = Observable(Selafin.GetAllTime(data, numv, 1))
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    end
+
+    # initialization
+    x = data.x[1:data.nbnodesLayer]
+    y = data.y[1:data.nbnodesLayer]
+    max_length_arrow = 1000
 
     # observables
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
-    allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
-    values = Observable(allvalues[][1, :])
-    varnumber = Observable(1)
+    u = Observable(utime[][1, :])
+    v = Observable(vtime[][1, :])
+    magnitude = Observable(vec(sqrt.(u.val .^ 2 .+ v.val .^ 2)))
     layernumber = Observable(1)
     timenumber = Observable(1)
     colorschoice = Observable(:viridis)
+    lenarrow = Observable(500)
 
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
@@ -40,24 +67,15 @@ function Plot2D(data)
     fig = Figure(resolution = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
-    mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+    arrows!(x, y, u, v, arrowsize = 10, lengthscale = lenarrow, arrowcolor = magnitude, linecolor = magnitude, colormap = colorschoice)
 
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
     on(time_slider.sliders[1].value) do timeval
-        values[] = allvalues[][timeval, :]
+        u[] = utime[][timeval, :]
+        v[] = vtime[][timeval, :]
+        magnitude[] = vec(sqrt.(u.val .^ 2 .+ v.val .^ 2))
         timenumber[] = timeval
-    end
-
-    # menu (variable number)
-    varchoice = Menu(fig, options = data.varnames, i_selected = 1)
-    on(varchoice.selection) do selected_variable
-        varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
-        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
-        values[] = allvalues[][timenumber.val, :]
     end
 
     # menu (layer number)
@@ -66,9 +84,18 @@ function Plot2D(data)
         layernumber[] = selected_layer
         print("$(Parameters.hand) Memory caching...")
         flush(stdout)
-        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+        utime[] = Selafin.GetAllTime(data, numu, layernumber.val)
+        vtime[] = Selafin.GetAllTime(data, numv, layernumber.val)
         println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
-        values[] = allvalues[][timenumber.val, :]
+        u[] = utime[][timenumber.val, :]
+        v[] = vtime[][timenumber.val, :]
+        magnitude[] = vec(sqrt.(u.val .^ 2 .+ v.val .^ 2))
+    end
+
+    # slider (length arrow)
+    arrow_slider = SliderGrid(fig, (range = 0:0.05:1, startvalue = lenarrow.val / max_length_arrow))
+    on(arrow_slider.sliders[1].value) do arrow
+        lenarrow[] = arrow * max_length_arrow
     end
 
     # menu (colorscheme)
@@ -82,8 +109,8 @@ function Plot2D(data)
 
     # layout
     fig[3,1] = hgrid!(
-        Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
+        Label(fig, "Arrow length:"), arrow_slider,
         Label(fig, "Colors:"), colorchoice,
         savefig
     )
@@ -92,15 +119,15 @@ function Plot2D(data)
     on(savefig.clicks) do clicks
         newfig = Figure(resolution = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
-        maxvar = maximum(values.val)
-        minvar = minimum(values.val)
+        Axis(newfig[1, 1], title="Velocity Field (m/s)    TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        arrows!(x, y, u, v, arrowsize = 10, lengthscale = lenarrow.val, arrowcolor = magnitude, linecolor = magnitude, colormap = colorschoice)
+        maxvar = maximum(magnitude.val)
+        minvar = minimum(magnitude.val)
         if minvar == maxvar
             maxvar = minvar + Parameters.eps
         end
         Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-        figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+        figname = "Selafin PlotField "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
         display(fig)
