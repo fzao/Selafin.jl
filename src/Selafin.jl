@@ -36,6 +36,7 @@ module Selafin
     include("./PlotField.jl")
     include("./Histogram.jl")
     include("./Extrema.jl")
+    include("./Correlation.jl")
     using .Distance
     using .Utils
     using .Parameters
