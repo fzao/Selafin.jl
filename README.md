@@ -174,6 +174,16 @@ Only the largest or the smallest values of a single variable are dynamically sel
   <img src="./fig/extre_display1.png" width="250"/>
 </p>
 
+## Correlation
+
+Time-dependent correlations are computed and plotted by using:
+
+<p align="left">
+  <img src="./fig/corr_display1.png" width="250"/>
+</p>
+
+By saving the image file, a linear regression will also be calculated.
+
 Requirements
 ============
 
