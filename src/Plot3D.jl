@@ -1,6 +1,6 @@
 # Plot3D.jl : this file is a part of the Selafin.jl project (a reader and viewer of the Telemac Selafin file (www.opentelemac.org) in the Julia programming language)
 #
-# 2D interactive plot with GLMakie
+# 3D interactive plot with GLMakie
 #
 # Released under the MIT License
 #
