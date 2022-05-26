@@ -33,6 +33,8 @@ module Parameters
     const le = Char(0x2264)
     const ge = Char(0x2265)
     const circle = Char(0x25CF)
+    const triright = Char(0x022B3)
+    const bigtimes = Char(0x02A09)
 
     # numerical zero value
     const eps = 1.e-6

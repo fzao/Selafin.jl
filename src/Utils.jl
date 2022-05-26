@@ -30,4 +30,11 @@ module Utils
         return string(days)*"d:"*string(hours)*"h:"*string(minutes)*"m:"*string(seconds)*'s'
     end
 
+    function linearreg(x, y)
+        n = length(x)
+        a = (n * sum(x .* y)- sum(x) * sum(y)) / (n * sum(x.^2) - sum(x).^2)  # slope
+        b = (sum(y) * sum(x.^2) - sum(x) * sum(x .* y))/(n * sum(x.^2) - sum(x)^2)  # intercept
+        return a, b
+    end
+
 end
