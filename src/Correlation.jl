@@ -130,7 +130,7 @@ function Correlation(data)
     on(savefig.clicks) do clicks
         newfig = Figure(resolution = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-        a, b = Utils.linearreg(values1.val, values2.val)
+        a, b = linearreg(values1.val, values2.val)
         Axis(newfig[1, 1], title=" TIME($(strtime))  "*" NB_LAYER($(layernumber.val))  "*" R = "*string(cor(values1.val, values2.val))*"       Y = $(a) $(Parameters.bigtimes) X + $(b)", xlabel = data.varnames[varnumber1.val], ylabel = data.varnames[varnumber2.val])
         scatter!(values1, values2)
         xmin = minimum(values1.val)
