@@ -37,6 +37,7 @@ module Selafin
     include("./Histogram.jl")
     include("./Extrema.jl")
     include("./Correlation.jl")
+    include("./Statistics.jl")
     using .Distance
     using .Utils
     using .Parameters
