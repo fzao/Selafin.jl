@@ -184,6 +184,14 @@ Time-dependent correlations are computed and plotted by using:
 
 By saving the image file, a linear regression will also be calculated.
 
+## Statistics
+
+The minimum and maximum values as well as the means and medians are provided with the following function:
+
+<p align="left">
+  <img src="./fig/stats_display1.png" width="250"/>
+</p>
+
 Requirements
 ============
 
