@@ -17,6 +17,18 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Read(filename)
+
+    Read the Telemac result file in the Selafin format
+    The return variable is a structure containing the main information about the Telemac file
+
+    Use: 
+        julia> data = Selafin.Read("T2Dresults.slf")
+    
+    # Arguments
+        - `filename::String`: the path of the Telemac Selafin file
+"""
 function Read(filename)
 
     if typeof(filename) != String

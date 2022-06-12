@@ -18,6 +18,19 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
+
+    Return all the mesh values for a given variable, a given time step, and a given layer number
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `novar::Int`: The variable number
+        - `notime::Int`: The time step number
+        - `noplane::Int`: The layer number
+        - `figopt::Bool`: Optional parameter for plotting (default: false)
+        - `figname::String`: Optional parameter for the file name of the plot saved on drive (default: nothing)
+"""
 function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
 
     if typeof(data) != Data

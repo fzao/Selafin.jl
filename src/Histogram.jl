@@ -16,6 +16,16 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Histogram(data)
+
+    Time-dependent histograms of the Telemac results
+
+    Use of the hist() Makie function
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+"""
 function Histogram(data)
 
     if typeof(data) != Data
