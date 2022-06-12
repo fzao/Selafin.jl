@@ -16,6 +16,16 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Plot3D(data)
+
+    3D bottom plot
+
+    Use of the mesh() Makie function
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+"""
 function Plot3D(data, warpcoef = 1.)
 
     if typeof(data) != Data

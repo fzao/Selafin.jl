@@ -16,6 +16,17 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Extrema(data, nbpoints = 30)
+
+    Plot the time-dependent minimum and maximal values  of the Telemac variables
+
+    Use of the scatter() Makie function
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `nbpoints::Int`: Optional parameter for the number of points to show (default: 30)
+"""
 function Extrema(data, nbpoints = 30)
 
     if typeof(data) != Data

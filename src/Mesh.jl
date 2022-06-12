@@ -18,6 +18,19 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
+"""
+    Quality(data, figopt=false, figname=nothing, quaval=0.5)
+
+    Information on the 2D triangular mesh quality
+    Gives a histogram of a quality measure (aspect ratio) of all the elements
+    Highligths the worst triangles (i.e. under the given threshold as parameter)
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `figopt::Bool`: Optional parameter for plotting (default: false)
+        - `figname::String`: Optional parameter for the file name of the plot saved on drive (default: nothing)
+        - `quaval::Float32`: Optional parameter for the detection threshold of bad triangles based on an aspect ratio (default: 0.5)
+"""
 function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualval)
 
     if typeof(data) != Data
