@@ -19,7 +19,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
 """
-    Quality(data, figopt=false, figname=nothing, quaval=0.5)
+    Quality(data, [figopt, figname, quaval])
 
     Information on the 2D triangular mesh quality
     Gives a histogram of a quality measure (aspect ratio) of all the elements

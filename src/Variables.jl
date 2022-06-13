@@ -19,15 +19,15 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
 """
-    Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
+    Get(data, novar, notime, noplane, [figopt, figname])
 
-    Return all the mesh values for a given variable, a given time step, and a given layer number
+    Return all the mesh values of a given variable
     
     # Arguments
         - `data::Struct`: Selafin file information provided by the Read(filename) function
-        - `novar::Int`: The variable number
-        - `notime::Int`: The time step number
-        - `noplane::Int`: The layer number
+        - `novar::Int`: The variable number (default: 0)
+        - `notime::Int`: The time step number (default: 0)
+        - `noplane::Int`: The layer number (default: 1)
         - `figopt::Bool`: Optional parameter for plotting (default: false)
         - `figname::String`: Optional parameter for the file name of the plot saved on drive (default: nothing)
 """
@@ -128,6 +128,16 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     return variables
 end
 
+"""
+GetAllTime(data, novar, noplane)
+
+    Return all the mesh values of a given variable, for all the time steps
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `novar::Int`: The variable number (default: 0)
+        - `noplane::Int`: The layer number (default: 1)
+"""
 function GetAllTime(data, novar=0, noplane=1)
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")

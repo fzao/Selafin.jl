@@ -17,7 +17,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 #
 """
-    Extrema(data, nbpoints = 30)
+    Extrema(data, [nbpoints])
 
     Plot the time-dependent minimum and maximal values  of the Telemac variables
 
