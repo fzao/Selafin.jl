@@ -187,3 +187,58 @@ function GetAllTime(data, novar=0, noplane=1)
 
     return varalltime
 end
+
+"""
+    GetNode(data, node, novar, notime)
+
+    Return the node value of a given variable
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `node::Int`: The global node number (default: 0)
+        - `novar::Int`: The variable number (default: 0)
+        - `notime::Int`: The time step number (default: 0)
+"""
+function GetNode(data, node = 0, novar=0, notime=0)
+
+    if typeof(data) != Data
+        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        return
+    end
+    if novar <= 0
+        println("$(Parameters.noksymbol) The variable number is not positive")
+        return
+    elseif novar > data.nbvars
+        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        return
+    end
+    if notime <= 0
+        println("$(Parameters.noksymbol) The time number is not positive")
+        return
+    elseif notime > data.nbsteps
+        println("$(Parameters.noksymbol) The time number exceeds the number of records")
+        return
+    end
+    if node < 1
+        println("$(Parameters.noksymbol) The node number is not positive")
+        return
+    elseif node > data.nbnodes
+        println("$(Parameters.noksymbol) The node number exceeds the max value")
+        return
+    end
+
+    function findnum(node)
+        for i in 1:data.nblayers
+            a = (i-1) * data.nbnodesLayer + 1
+            b = i * data.nbnodesLayer
+            if node >= a && node <= b
+                return i, node - a + 1  # noplane, nodenum
+            end
+        end
+    end
+
+    noplane, nodenum = findnum(node)
+    res = Selafin.Get(data, novar, notime, noplane)
+
+    return res[nodenum]
+end
