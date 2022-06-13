@@ -16,7 +16,7 @@
 #
 module Utils
 
-    export insertcommas, convertSeconds, linearreg
+    export insertcommas, convertSeconds, linearreg, findnum
 
     insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -35,6 +35,16 @@ module Utils
         a = (n * sum(x .* y)- sum(x) * sum(y)) / (n * sum(x.^2) - sum(x).^2)  # slope
         b = (sum(y) * sum(x.^2) - sum(x) * sum(x .* y)) / (n * sum(x.^2) - sum(x)^2)  # intercept
         return a, b
+    end
+
+    function findnum(data, node)
+        for i in 1:data.nblayers
+            a = (i-1) * data.nbnodesLayer + 1
+            b = i * data.nbnodesLayer
+            if node >= a && node <= b
+                return i, node - a + 1  # noplane, nodenum
+            end
+        end
     end
 
 end
