@@ -16,7 +16,7 @@
 #
 module Utils
 
-    export insertcommas, convertSeconds, linearreg, findnum
+    export insertcommas, convertSeconds, linearreg, findnum, interiorTriangle, interpolInTriangle
 
     insertcommas(num::Integer) = replace(string(num), r"(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" => ",")
 
@@ -45,6 +45,52 @@ module Utils
                 return i, node - a + 1  # noplane, nodenum
             end
         end
+    end
+
+    function Orient(Ax, Ay, Bx, By, Cx, Cy)
+        ABx = Bx - Ax
+        ABy = By - Ay
+        ACx = Cx - Ax
+        ACy = Cy - Ay
+        crossprod = ABx * ACy - ABy * ACx
+        if crossprod >= 0.
+            return 1
+        else
+            return 0
+        end
+    end
+    
+    function interiorTriangle(data, Px, Py)
+        numtri = nothing
+        for i in 1:data.nbtrianglesLayer
+            A = data.ikle[i, 1]
+            B = data.ikle[i, 2]
+            C = data.ikle[i, 3]
+            Ax = data.x[A]; Ay = data.y[A]
+            Bx = data.x[B]; By = data.y[B]
+            Cx = data.x[C]; Cy = data.y[C]
+            totor = 0
+            totor = Orient(Ax, Ay, Bx, By, Px, Py)
+            totor += Orient(Bx, By, Cx, Cy, Px, Py)
+            totor += Orient(Cx, Cy, Ax, Ay, Px, Py)
+            if totor == 3
+                numtri = i
+                break
+            end
+        end
+        return numtri
+    end
+    
+    function interpolInTriangle(data, A, B, C, valA, valB, valC, P)
+        Ax = data.x[A]; Ay = data.y[A]
+        Bx = data.x[B]; By = data.y[B]
+        Cx = data.x[C]; Cy = data.y[C]
+        Px = P[1]; Py = P[2]
+        den = 1. / ((By - Cy) * (Ax - Cx) + (Cx - Bx) * (Ay - Cy))
+        w1 = ((By - Cy) * (Px - Cx) + (Cx - Bx) * (Py - Cy)) * den
+        w2 = ((Cy - Ay) * (Px - Cx) + (Ax - Cx) * (Py - Cy)) * den
+        w3 = 1. - w1 - w2
+        return w1 * valA + w2 * valB + w3 * valC
     end
 
 end

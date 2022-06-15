@@ -269,3 +269,64 @@ function GetNodeAllTime(data, node = 0, novar=0)
 
     return res[:, nodenum]
 end
+
+"""
+    GetXY(data, X, Y, novar, notime, noplane)
+
+    Return the value of a given variable from 2D and layer coordinates
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `X::Float`: x-coordinate
+        - `Y::Float`: y-coordinate
+        - `novar::Int`: The variable number (default: 0)
+        - `notime::Int`: The time step number (default: 0)
+        - `noplane::Int`: The layer number (default: 1)
+"""
+function GetXY(data, X, Y, novar=0, notime=0, noplane=1)
+
+    if typeof(data) != Data
+        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        return
+    end
+    if novar <= 0
+        println("$(Parameters.noksymbol) The variable number is not positive")
+        return
+    elseif novar > data.nbvars
+        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        return
+    end
+    if notime <= 0
+        println("$(Parameters.noksymbol) The time number is not positive")
+        return
+    elseif notime > data.nbsteps
+        println("$(Parameters.noksymbol) The time number exceeds the number of records")
+        return
+    end
+    if noplane < 1
+        println("$(Parameters.noksymbol) The layer number is not positive")
+        return
+    end
+    if noplane > data.nblayers
+        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        return
+    end
+
+    # get the triangle number of layer #1 (xy-coordinates are the same, whatever the layer number)
+    triangle = interiorTriangle(data, X, Y)
+    if isnothing(triangle)
+        println("$(Parameters.noksymbol) xy-coordinates not found")
+        return nothing
+    end
+
+    # get all the mesh values
+    values = Selafin.Get(data, novar, notime, noplane)
+
+    # select the surrounding points and interpolate (triangles ordering is the same, whatever the layer number)
+    A = data.ikle[triangle, 1]; B = data.ikle[triangle, 2]; C = data.ikle[triangle, 3]
+    valA = values[A]; valB = values[B]; valC = values[C]
+    valinterp = interpolInTriangle(data, A, B, C, valA, valB, valC, [X, Y])
+
+    return valinterp
+
+end
