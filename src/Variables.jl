@@ -243,7 +243,7 @@ end
         - `node::Int`: The global node number (default: 0)
         - `novar::Int`: The variable number (default: 0)
 """
-function GetNodeAllTime(data, node = 0, novar=0, notime=0)
+function GetNodeAllTime(data, node = 0, novar=0)
 
     if typeof(data) != Data
         println("$(Parameters.noksymbol) Parameter is not a Data struct")
