@@ -330,3 +330,61 @@ function GetXY(data, X, Y, novar=0, notime=0, noplane=1)
     return valinterp
 
 end
+
+"""
+    GetXYAllTime(data, X, Y, novar, noplane)
+
+    Return the value of a given variable from 2D and layer coordinates
+    
+    # Arguments
+        - `data::Struct`: Selafin file information provided by the Read(filename) function
+        - `X::Float`: x-coordinate
+        - `Y::Float`: y-coordinate
+        - `novar::Int`: The variable number (default: 0)
+        - `noplane::Int`: The layer number (default: 1)
+"""
+function GetXYAllTime(data, X, Y, novar=0, noplane=1)
+
+    if typeof(data) != Data
+        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        return
+    end
+    if novar <= 0
+        println("$(Parameters.noksymbol) The variable number is not positive")
+        return
+    elseif novar > data.nbvars
+        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        return
+    end
+    if noplane < 1
+        println("$(Parameters.noksymbol) The layer number is not positive")
+        return
+    end
+    if noplane > data.nblayers
+        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        return
+    end
+
+    # get the triangle number of layer #1 (xy-coordinates are the same, whatever the layer number)
+    triangle = interiorTriangle(data, X, Y)
+    if isnothing(triangle)
+        println("$(Parameters.noksymbol) xy-coordinates not found")
+        return nothing
+    end
+
+    # get all the mesh values for all the times
+    values = Selafin.GetAllTime(data, novar, noplane)
+
+    # select the surrounding points and interpolate (triangles ordering is the same, whatever the layer number)
+    A = data.ikle[triangle, 1]; B = data.ikle[triangle, 2]; C = data.ikle[triangle, 3]
+
+    # interpolate for each time value
+    valinterp = []
+    for t in 1:data.nbsteps
+        valA = values[t, A]; valB = values[t, B]; valC = values[t, C]
+        push!(valinterp, interpolInTriangle(data, A, B, C, valA, valB, valC, [X, Y]))
+    end
+
+    return Float64.(valinterp)
+
+end
