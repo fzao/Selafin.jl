@@ -32,7 +32,7 @@ module Model
         nbtrianglesLayer::Int32  # number of mesh triangles for one layer
         nbnodesLayer::Int32  # number of mesh nodes for one layer
         nbsteps::Int32  # number of time steps
-        timestep::Int32  # time step in seconds
+        timestep::Float32  # time step in seconds
         varnames  # names of variables
         typefloat  # simple or double precision
         iparam::Array{Int32, 1}  # integer parameters
