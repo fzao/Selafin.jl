@@ -132,6 +132,16 @@ Finally, in order to get and see the vertical velocity (*w*), at the time step n
   <img src="./fig/t3d_display4.png" width="600"/>
 </p>
 
+## Get the variables
+
+Six functions allow to get the values of the variables:
+
+- *Get* and *GetAllTime* for values on the whole mesh
+
+- *GetNode* and *GetNodeAllTime* for values on a single node of the mesh
+
+- *GetXY* and *GetXYAllTime* for values on a point whose coordinates are given by the user
+
 ## Plot the variables
 
 It is possible to plot the listed variables of Telemac interactively (see video above) with the following function:
