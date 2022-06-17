@@ -22,9 +22,9 @@ module Utils
 
     function convertSeconds(seconds)
 
-        days = seconds ÷ 86400
-        hours = (seconds ÷ 3600) - (days * 24)
-        minutes = (seconds ÷ 60) - (days * 1440) - (hours * 60)
+        days = Int(seconds ÷ 86400)
+        hours = Int((seconds ÷ 3600) - (days * 24))
+        minutes = Int((seconds ÷ 60) - (days * 1440) - (hours * 60))
         seconds = seconds % 60
 
         return string(days)*"d:"*string(hours)*"h:"*string(minutes)*"m:"*string(seconds)*'s'
