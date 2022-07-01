@@ -102,4 +102,79 @@ Selafin.Plot3D(data, 2.)
 
 ## Getting results
 
-## Getting some statistics
+There are three ways to obtain the results: on the whole mesh, on a particular node of the mesh, or from the coordinates of a point. For each of these ways, it is possible to obtain the result(s) for one time step or for all time steps.
+
+### All mesh values
+
+For instance, to get the values for the variable number #1, and for the layer number #3, call the following functions:
+
+```julia
+Selafin.Get(data, 1, 2, 3)  # for the time step number #2 only
+Selafin.GetAllTime(data, 1, 3)  # for all the time steps
+```
+
+### The values of a node
+
+For instance, to get the values on node number #100, and for the variable number #1, call the following functions:
+
+```julia
+Selafin.GetNode(data, 100, 1, 2)  # for the time step number #2 only
+Selafin.GetAllTime(data, 100, 1)  # for all the time steps
+```
+
+### The values of a point
+
+Given the xy-coordinates (50., 60.), in order to get the values for the variable number #1, and for the layer number #3, call the following functions:
+
+```julia
+Selafin.GetXY(data, 50., 60., 1, 2, 3)  # for the time step number #2 only
+Selafin.GetXYAllTime(data, 50., 60., 1, 3)  # for all the time steps
+```
+
+## Analysis
+
+### Basic statistics
+
+The minimum and maximum values as well as the means and medians are provided with the following function:
+
+```julia
+Selafin.Statistics(data)
+```
+
+### Histogram
+
+It is also possible to interactively visualize the histograms of all variables as a function of time with the command:
+
+```julia
+Selafin.Histogram(data)
+```
+
+### Extrema
+
+The largest or the smallest values of a single variable can be dynamically selected and displayed. For instance, to show only the top ten values, use the following code:
+
+```julia
+Selafin.extrema(data, 10)
+```
+
+### Correlation
+
+Time-dependent correlations are computed and plotted by using:
+
+```julia
+Selafin.Correlation(data)
+```
+
+By saving the image file, a linear regression will also be calculated.
+
+# Appendix
+
+## Mesh quality
+
+The mesh quality is evaluated by calculating an aspect ratio for each 2D triangle:
+
+$\alpha_i = \frac{4  \sqrt(3)  S_i}{l_1^2 + l_2^2 + l_3^2}$
+
+where $S_i$ is the area and $(l_1, l_2, l_3)$ are sides of triangle $i$
+
+An equilateral triangle will have the max aspect ratio of 1
