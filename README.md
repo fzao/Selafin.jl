@@ -15,13 +15,10 @@ Purpose: get info and analyze the Telemac 2D/3D results (values and mesh)
 
 ## Using Selafin.jl
 
-In the package directory and from the package manager, activate *Selafin.jl*:
+First, install *Selafin.jl* with the package manager:
 
 <p align="left">
-  <img src="./fig/activate1.png" width="220"/>
-</p>
-<p align="left">
-  <img src="./fig/activate2.png" width="140"/>
+  <img src="./fig/install.png" width="220"/>
 </p>
 
 Then use *Selafin.jl* from the Julia REPL:
