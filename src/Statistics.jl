@@ -110,7 +110,7 @@ function Statistics(data)
     end
 
     # menu (layer number)
-    layerchoice = Menu(fig[3, 2], prompt = "Variable:", options = 1:data.nblayers, i_selected = 1)
+    layerchoice = Menu(fig[3, 2], prompt = "Layer:", options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
         print("$(Parameters.hand) Memory caching...")
