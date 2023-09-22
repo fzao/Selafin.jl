@@ -90,73 +90,50 @@ function Plot2D(data)
     # button (save figure)
     savefig = Button(fig, label="Save Figure")
 
+    # button (save animation)
+    savemp4 = Button(fig, label="Save Animation")
+
     # layout
     fig[3,1] = hgrid!(
         Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
         Label(fig, "Colors:"), colorchoice,
-        savefig
+        savefig,
+        savemp4
     )
 
-    # # save figure on button click
-    # on(savefig.clicks) do clicks
-    #     newfig = Figure(resolution = (1280, 1024))
-    #     strtime = convertSeconds((timenumber.val - 1) * data.timestep)
-    #     Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-    #     mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
-    #     maxvar = maximum(values.val)
-    #     minvar = minimum(values.val)
-    #     if minvar == maxvar
-    #         maxvar = minvar + Parameters.eps
-    #     end
-    #     Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-    #     figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
-    #     save(figname, newfig, px_per_unit = 2)
-    #     println("$(Parameters.oksymbol) Figure saved")
-    #     display(fig)
-    # end
-
-    # # save all figures on button click
-    # on(savefig.clicks) do clicks
-    #     saveDate = Dates.now()
-    #     for t = 1:data.nbsteps
-    #         newfig = Figure(resolution = (1280, 1024))
-    #         strtime = convertSeconds((t - 1) * data.timestep)
-    #         Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-    #         val = Selafin.Get(data, varnumber.val, t, layernumber.val)
-    #         mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=val, colormap=colorschoice, shading=false)
-    #         maxvar = maximum(val)
-    #         minvar = minimum(val)
-    #         if minvar == maxvar
-    #             maxvar = minvar + Parameters.eps
-    #         end
-    #         Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
-    #         figname = "Selafin Plot2D "*replace(replace(string(saveDate), 'T' => " at "), ':' => '.')*'_'*string(t, base = 10, pad = 4)*".png"
-    #         save(figname, newfig, px_per_unit = 2)
-    #     end
-    #     println("$(Parameters.oksymbol) Figures saved")
-    #     display(fig)
-    # end
+    # save figure on button click
+    on(savefig.clicks) do clicks
+        newfig = Figure(resolution = (1280, 1024))
+        strtime = convertSeconds((timenumber.val - 1) * data.timestep)
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+        maxvar = maximum(values.val)
+        minvar = minimum(values.val)
+        if minvar == maxvar
+            maxvar = minvar + Parameters.eps
+        end
+        Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
+        figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
+        save(figname, newfig, px_per_unit = 2)
+        println("$(Parameters.oksymbol) Figure saved")
+        display(fig)
+    end
 
     # save animation on button click
-    on(savefig.clicks) do clicks
+    on(savemp4.clicks) do clicks
         time = Observable(0.0)
         timestamps = 1:data.nbsteps
         newfig = Figure(resolution = (1280, 1024))
         strtime = convertSeconds((time.val - 1) * data.timestep)
-        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(convertSeconds((time.val - 1) * data.timestep))) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-        # maxvar = maximum(values.val)
-        # minvar = minimum(values.val)
-        # if minvar == maxvar
-        #     maxvar = minvar + Parameters.eps
-        # end
-        Colorbar(newfig[1, 2], limits = (minimum(values.val), maximum(values.val) + Parameters.eps), colormap = colorschoice)
+        Axis(newfig[1, 1], title=@lift(data.varnames[varnumber.val]*" TIME($(convertSeconds(($time - 1) * data.timestep))) "*" NB_LAYER($(layernumber.val)) "), xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
+        Colorbar(newfig[1, 2], label = "Normalized values", colormap = colorschoice)
         mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
         record(newfig, "animation.mp4", timestamps; framerate = 24) do t
             time[] = t
             values[] = Selafin.Get(data, varnumber.val, t, layernumber.val)
         end
-        println("$(Parameters.oksymbol) Figures saved")
+        println("$(Parameters.oksymbol) Animation saved to .mp4 file")
         display(fig)
     end
 
