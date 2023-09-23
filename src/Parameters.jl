@@ -35,6 +35,7 @@ module Parameters
     const circle = Char(0x25CF)
     const triright = Char(0x022B3)
     const bigtimes = Char(0x02A09)
+    const exclam = Char(0x2757)
 
     # numerical zero value
     const eps = 1.e-6

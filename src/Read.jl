@@ -209,8 +209,16 @@ function Read(filename)
         end
     end
     if telemac_data.nbsteps > 1
-        telemac_data.timestep = timevalue[2] - timevalue[1]
+        firststep = timevalue[2] - timevalue[1]
+        if telemac_data.nbsteps > 2
+            telemac_data.timestep = timevalue[3] - timevalue[2]
+        else
+            telemac_data.timestep = firststep
+        end
         println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps) with "*"$delta"*"t = $(telemac_data.timestep) s")
+        if telemac_data.timestep != firststep
+            println("$(Parameters.exclam) The first time step is different ($(firststep) s) due to a shifted recording of results")
+        end
     else
         telemac_data.timestep = 0
         println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps)")
