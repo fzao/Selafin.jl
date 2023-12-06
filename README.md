@@ -202,7 +202,7 @@ The minimum and maximum values as well as the means and medians are provided wit
 Requirements
 ============
 
-- Julia v1.7 or above
+- Julia v1.6 or above
 
 Julia package dependencies
 ==========================
