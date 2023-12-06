@@ -108,7 +108,7 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     println("\t Median: $medval")
 
     if figopt
-        fig = Figure(resolution = (1280, 1024))
+        fig = Figure(size = (1280, 1024))
         Axis(fig[1, 1], title=data.varnames[novar]*" TIME($(strtime)) "*" NB_LAYER($(noplane)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         maxvar = maximum(variables)
         minvar = minimum(variables)
@@ -116,7 +116,7 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
             maxvar = minvar + Parameters.eps
         end
         Colorbar(fig[1, 2], limits = (minvar, maxvar), colormap = :viridis)
-        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=variables, colormap=:viridis, shading=false)
+        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=variables, colormap=:viridis, shading=NoShading)
 
         if !isnothing(figname)
             save(figname, fig, px_per_unit = 2)

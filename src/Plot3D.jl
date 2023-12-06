@@ -51,10 +51,11 @@ function Plot3D(data, warpcoef = 1.)
     # figure
     print("$(Parameters.hand) Pending GPU-powered 3D plot... (this may take a while)")
     flush(stdout)
+    GLMakie.closeall()
     nodes = [Point3f0(data.x[i], data.y[i], z[i]) for i in 1:data.nbnodesLayer]
     tris = data.ikle[1:data.nbtrianglesLayer, 1:3]
     tri = [GLTriangleFace(tris[i, 1], tris[i, 2], tris[i, 3]) for i in 1:data.nbtrianglesLayer]
-    mesh(nodes, tri, color=last.(nodes), figure = (resolution = (1280, 1024),)) |> display
+    mesh(nodes, tri, color=last.(nodes), figure = (size = (1280, 1024),)) |> display
 
     println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
 

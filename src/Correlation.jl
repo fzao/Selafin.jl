@@ -49,7 +49,8 @@ function Correlation(data)
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
-    fig = Figure(resolution = (1280, 1024))
+    GLMakie.closeall()
+    fig = Figure(size = (1280, 1024))
     ax = Axis(fig[1, 1])
     ax.xlabel = data.varnames[1]
     ax.ylabel = data.varnames[1]
@@ -138,7 +139,7 @@ function Correlation(data)
     savefig = Button(fig, label="Save Figure")
     # save figure on button click
     on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
         a, b = linearreg(values1.val, values2.val)
         Axis(newfig[1, 1], title=" TIME($(strtime))  "*" NB_LAYER($(layernumber.val))  "*" R = "*string(cor(values1.val, values2.val))*"       Y = $(a) $(Parameters.bigtimes) X + $(b)", xlabel = data.varnames[varnumber1.val], ylabel = data.varnames[varnumber2.val])

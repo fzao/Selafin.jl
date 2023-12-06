@@ -49,7 +49,8 @@ function Statistics(data)
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
-    fig = Figure(resolution = (1280, 1024))
+    GLMakie.closeall()
+    fig = Figure(size = (1280, 1024))
     ax1 = Axis(fig[1, 1], xlabel = "Time step number", ylabel = "Min")
     ax2 = Axis(fig[1, 2], xlabel = "Time step number", ylabel = "Max")
     ax3 = Axis(fig[2, 1], xlabel = "Time step number", ylabel = "Mean")
@@ -125,7 +126,7 @@ function Statistics(data)
 
     # save figure on button click
     on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         Axis(newfig[1, 1], title="MIN("*data.varnames[varnumber.val]*") NB_LAYER($(layernumber.val)) ", xlabel = "Time step number", ylabel = "Min")
         Axis(newfig[1, 2], title="MAX("*data.varnames[varnumber.val]*") NB_LAYER($(layernumber.val)) ", xlabel = "Time step number", ylabel = "Max")
         Axis(newfig[2, 1], title="MEAN("*data.varnames[varnumber.val]*") NB_LAYER($(layernumber.val)) ", xlabel = "Time step number", ylabel = "Mean")

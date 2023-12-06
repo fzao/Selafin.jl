@@ -74,7 +74,8 @@ function PlotField(data)
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
-    fig = Figure(resolution = (1280, 1024))
+    GLMakie.closeall()
+    fig = Figure(size = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
     arrows!(x, y, u, v, arrowsize = 10, lengthscale = lenarrow, arrowcolor = magnitude, linecolor = magnitude, colormap = colorschoice)
@@ -127,7 +128,7 @@ function PlotField(data)
 
     # save figure on button click
     on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
         Axis(newfig[1, 1], title="Velocity Field (m/s)    TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         arrows!(x, y, u, v, arrowsize = 10, lengthscale = lenarrow.val, arrowcolor = magnitude, linecolor = magnitude, colormap = colorschoice)

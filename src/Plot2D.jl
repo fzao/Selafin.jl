@@ -47,10 +47,11 @@ function Plot2D(data)
     # figure
     print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
     flush(stdout)
-    fig = Figure(resolution = (1280, 1024))
+    GLMakie.closeall()
+    fig = Figure(size = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
     Colorbar(fig[1, 2], label = "Normalized values", colormap = colorschoice)
-    mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+    mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=NoShading)
 
     # slider (time step)
     time_slider = SliderGrid(fig[2, 1], (label = "Time step number", range = 1:1:data.nbsteps, startvalue = 1))
@@ -104,10 +105,10 @@ function Plot2D(data)
 
     # save figure on button click
     on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
         Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
-        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=NoShading)
         maxvar = maximum(values.val)
         minvar = minimum(values.val)
         if minvar == maxvar
@@ -117,24 +118,24 @@ function Plot2D(data)
         figname = "Selafin Plot2D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
-        display(fig)
+        # display(fig)
     end
 
     # save animation on button click
     on(savemp4.clicks) do clicks
         time = Observable(0.0)
         timestamps = 1:data.nbsteps
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         strtime = convertSeconds((time.val - 1) * data.timestep)
         Axis(newfig[1, 1], title=@lift(data.varnames[varnumber.val]*" TIME($(convertSeconds(($time - 1) * data.timestep))) "*" NB_LAYER($(layernumber.val)) "), xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
         Colorbar(newfig[1, 2], label = "Normalized values", colormap = colorschoice)
-        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=false)
+        mesh!([data.x[1:data.nbnodesLayer] data.y[1:data.nbnodesLayer]], data.ikle[1:data.nbtrianglesLayer, 1:3], color=values, colormap=colorschoice, shading=NoShading)
         record(newfig, "animation.mp4", timestamps; framerate = 24) do t
             time[] = t
             values[] = Selafin.Get(data, varnumber.val, t, layernumber.val)
         end
         println("$(Parameters.oksymbol) Animation saved to .mp4 file")
-        display(fig)
+        # display(fig)
     end
 
     display(fig)

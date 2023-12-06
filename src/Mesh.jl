@@ -190,7 +190,8 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
         # plot
         print("$(Parameters.hand) Pending GPU-powered graphs... (this may take a while)")
         flush(stdout)
-        fig = Figure(resolution = (1280, 1024))
+        GLMakie.closeall()
+        fig = Figure(size = (1280, 1024))
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
         ax2, l2 = lines(fig[1, 2], ptxbnd, ptybnd)
         ax1.title = "Mesh ($(data.nbtrianglesLayer) triangles)"

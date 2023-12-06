@@ -91,7 +91,8 @@ function Histogram(data)
     # figure
     print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
     flush(stdout)
-    fig = Figure(resolution = (1280, 1024))
+    GLMakie.closeall()
+    fig = Figure(size = (1280, 1024))
     ax = Axis(fig[1, 1], xlabel = "Values", ylabel = "Frequency")
     limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     hist!(ax, values, bins = nbins, color = :gray, strokewidth = 1, strokecolor = :black)
@@ -139,7 +140,7 @@ function Histogram(data)
 
     # save figure on button click
     on(savefig.clicks) do clicks
-        newfig = Figure(resolution = (1280, 1024))
+        newfig = Figure(size = (1280, 1024))
         strtime = convertSeconds((timenumber.val - 1) * data.timestep)
         Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" TIME($(strtime)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "Values", ylabel = "Frequency")
         hist!(values, bins = nbins, color = :gray, strokewidth = 1, strokecolor = :black)

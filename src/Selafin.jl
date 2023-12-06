@@ -43,4 +43,5 @@ module Selafin
     using .Parameters
     using .Model
 
+    GLMakie.activate!()
 end # module
