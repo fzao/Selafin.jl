@@ -187,7 +187,7 @@ function Extrema(data, nbpoints = 30)
         figname = "Selafin Extrema "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
-        display(fig)
+        # display(fig)
     end
 
     # layout

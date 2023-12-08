@@ -141,7 +141,7 @@ function PlotField(data)
         figname = "Selafin PlotField "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
-        display(fig)
+        # display(fig)
     end
 
     display(fig)
