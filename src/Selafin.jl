@@ -31,6 +31,7 @@ module Selafin
     include("./Read.jl")
     include("./Mesh.jl")
     include("./Variables.jl")
+    include("./Plot1D.jl")
     include("./Plot2D.jl")
     include("./Plot3D.jl")
     include("./PlotField.jl")
