@@ -61,7 +61,7 @@ function Plot1D(data)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][:, nodenum[]]
-        ylims!(ax, minimum(values.val), maximum(values.val))
+        ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
     end
 
     # menu (variable number)
@@ -73,7 +73,7 @@ function Plot1D(data)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][:, nodenum[]]
-        ylims!(ax, minimum(values.val), maximum(values.val))
+        ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
     end
 
     # menu (layer number)
@@ -85,7 +85,7 @@ function Plot1D(data)
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
         println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
         values[] = allvalues[][:, nodenum[]]
-        ylims!(ax, minimum(values.val), maximum(values.val))
+        ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
     end
 
     # button (save figure)
@@ -102,8 +102,8 @@ function Plot1D(data)
     # save figure on button click
     on(savefig.clicks) do clicks
         newfig = Figure(size = (1280, 1024))
-        Axis(fig[1, 1], xlabel = "Time steps", ylabel = "Values")
-        lines!(fig[1, 1], xs, values)
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" NODE($(nodenum.val)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "Time steps", ylabel = "Values")
+        lines!(newfig[1, 1], xs, values)
         figname = "Selafin Plot1D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
         println("$(Parameters.oksymbol) Figure saved")
