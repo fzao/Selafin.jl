@@ -1,7 +1,7 @@
 name = "Selafin"
 uuid = "6cae1b32-c579-48cf-a312-754d5539f064"
 authors = ["Fabrice ZAOUI <fabrice.zaoui@edf.fr>"]
-version = "0.3"
+version = "0.3.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"

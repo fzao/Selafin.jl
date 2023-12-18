@@ -22,6 +22,7 @@ module Selafin
     using GeometryBasics
     using GLMakie
     using StatsBase
+    using FFMPEG_jll
 
     # local functions and modules
     include("./Distance.jl")

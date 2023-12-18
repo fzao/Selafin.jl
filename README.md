@@ -211,6 +211,7 @@ Julia package dependencies
 - [GeometryBasics](https://juliageometry.github.io/GeometryBasics.jl/stable/)
 - [StatsBase](https://juliastats.org/StatsBase.jl/stable/)
 - [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/)
+- [FFMPEG_jll](https://github.com/JuliaBinaryWrappers/FFMPEG_jll.jl)
 
 License
 =======
