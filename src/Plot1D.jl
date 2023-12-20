@@ -53,15 +53,22 @@ function Plot1D(data)
     lines!(fig[1, 1], xs, values)
     
     # menu (node number)
-    tb = Textbox(fig, placeholder = "Node number", validator = Int32)
+    tb = Textbox(fig, placeholder = "1", validator = Int32)
     on(tb.stored_string) do s
-        nodenum[] = parse(Int32, s)
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
-        allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
-        values[] = allvalues[][:, nodenum[]]
-        ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
+        usernode = parse(Int32, s)
+        if (usernode >= 1) & (usernode <= data.nbnodes)
+            nodenum[] = usernode
+            xcoord = data.x[usernode]; ycoord = data.y[usernode]
+            println("Node = $(usernode) (X,Y) = ($(xcoord), $(ycoord))")
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+            allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
+            println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+            values[] = allvalues[][:, nodenum[]]
+            ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
+        else
+            println("\r$(Parameters.noksymbol) Wrong node number!                    ")
+        end
     end
 
     # menu (variable number)
@@ -95,7 +102,7 @@ function Plot1D(data)
     fig[2,1] = hgrid!(
         Label(fig, "Variable:"), varchoice,
         Label(fig, "Layer:"), layerchoice,
-        Label(fig, "Node:"), tb,
+        Label(fig, "Node number:"), tb,
         savefig
     )
 
