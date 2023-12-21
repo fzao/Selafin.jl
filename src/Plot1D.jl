@@ -109,7 +109,8 @@ function Plot1D(data)
     # save figure on button click
     on(savefig.clicks) do clicks
         newfig = Figure(size = (1280, 1024))
-        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" NODE($(nodenum.val)) "*" NB_LAYER($(layernumber.val)) ", xlabel = "Time steps", ylabel = "Values")
+        xcoord = data.x[nodenum.val]; ycoord = data.y[nodenum.val]
+        Axis(newfig[1, 1], title=data.varnames[varnumber.val]*" NODE = $(nodenum.val)  "*"  (X,Y) = ($(xcoord), $(ycoord))  "*"  NB_LAYER = $(layernumber.val)", xlabel = "Time steps", ylabel = "Values")
         lines!(newfig[1, 1], xs, values)
         figname = "Selafin Plot1D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
