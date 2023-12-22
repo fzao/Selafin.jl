@@ -49,7 +49,7 @@ And in return, the user will have access to a Julia data structure:
   <img src="./fig/t2d_display2.png" width="800"/>
 </p>
 
-The mesh can be analyzed with the *Mesh()* function by giving the data structure:
+The mesh can be analyzed with the *Quality()* function by giving the data structure:
 
 <p align="left">
   <img src="./fig/t2d_display3.png" width="280"/>
