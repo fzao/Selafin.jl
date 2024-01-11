@@ -29,16 +29,18 @@
 function Correlation(data)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
 
     # observables
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+    end
     allvalues1 = Observable(Selafin.GetAllTime(data, 1, 1))
     allvalues2 = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
     values1 = Observable(allvalues1[][1, :])
     values2 = Observable(allvalues2[][1, :])
     varnumber1 = Observable(1)
@@ -47,8 +49,10 @@ function Correlation(data)
     timenumber = Observable(1)
 
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true 
+        print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     fig = Figure(size = (1280, 1024))
     ax = Axis(fig[1, 1])
@@ -71,7 +75,7 @@ function Correlation(data)
     on(time_slider.sliders[1].value) do timeval
         values1[] = allvalues1[][timeval, :]
         values2[] = allvalues2[][timeval, :]
-        println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val)))
+        if data.verbose == trueprintln("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val))) end
         timenumber[] = timeval
     end
 
@@ -79,8 +83,10 @@ function Correlation(data)
     varchoice1 = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice1.selection) do selected_variable1
         varnumber1[] = findall(occursin.(selected_variable1, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues1[] = Selafin.GetAllTime(data, varnumber1.val, layernumber.val)
         ax.xlabel = data.varnames[varnumber1.val]
         xmin = minimum(allvalues1.val)
@@ -88,17 +94,19 @@ function Correlation(data)
         xmax = maximum(allvalues1.val)
         xmax = xmax >= 0. ? 1.05 * xmax : 0.95 * xmax
         xlims!(ax, xmin, xmax)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values1[] = allvalues1[][timenumber.val, :]
-        println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val)))
+        if data.verbose == true println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val))) end
     end
 
     # menu (variable number #2)
     varchoice2 = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice2.selection) do selected_variable2
         varnumber2[] = findall(occursin.(selected_variable2, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues2[] = Selafin.GetAllTime(data, varnumber2.val, layernumber.val)
         ax.ylabel = data.varnames[varnumber2.val]
         ymin = minimum(allvalues2.val)
@@ -106,17 +114,19 @@ function Correlation(data)
         ymax = maximum(allvalues2.val)
         ymax = ymax >= 0. ? 1.05 * ymax : 0.95 * ymax
         ylims!(ax, ymin, ymax)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values2[] = allvalues2[][timenumber.val, :]
-        println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val)))
+        if data.verbose == true println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val))) end
     end
 
     # menu (layer number)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues1[] = Selafin.GetAllTime(data, varnumber1.val, layernumber.val)
         allvalues2[] = Selafin.GetAllTime(data, varnumber2.val, layernumber.val)
         xmin = minimum(allvalues1.val)
@@ -129,10 +139,10 @@ function Correlation(data)
         ymax = ymax >= 0. ? 1.05 * ymax : 0.95 * ymax
         xlims!(ax, xmin, xmax)
         ylims!(ax, ymin, ymax)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values1[] = allvalues1[][timenumber.val, :]
         values2[] = allvalues2[][timenumber.val, :]
-        println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val)))
+        if data.verbose == true println("$(Parameters.triright) Pearson correlation: " * string(cor(values1.val, values2.val))) end
     end
 
     # button (save figure)
@@ -148,11 +158,11 @@ function Correlation(data)
         xmax = maximum(values1.val)
         ymin = a * xmin + b
         ymax = a * xmax + b
-        println("$(Parameters.triright) Linear regression: Y = $(a) $(Parameters.bigtimes) X + $(b)")
+        if data.verbose == true println("$(Parameters.triright) Linear regression: Y = $(a) $(Parameters.bigtimes) X + $(b)") end
         lines!([xmin, xmax], [ymin, ymax], color = :gold)
         figname = "Selafin Correlation "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
@@ -165,7 +175,7 @@ function Correlation(data)
     )
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

@@ -30,19 +30,21 @@
 function Extrema(data, nbpoints = 30)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if nbpoints > data.nbnodesLayer || nbpoints < 0
-        println("$(Parameters.noksymbol) Incorrect number of visualization points")
+        if data.verbose == true println("$(Parameters.noksymbol) Incorrect number of visualization points") end
         return
     end
 
     # initial values
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+    end
     allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
     values = allvalues[][1, :]
     lenmaxvalues = nbpoints - 1
     absvalues = abs.(values)
@@ -65,8 +67,10 @@ function Extrema(data, nbpoints = 30)
     valchoice = Observable("Largest")
     
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     fig = Figure(size = (1280, 1024))
     Axis(fig[1, 1], xlabel = "xcoordinates (m)", ylabel = "ycoordinates (m)")
@@ -98,10 +102,12 @@ function Extrema(data, nbpoints = 30)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values = allvalues[][timenumber.val, :]
         absvalues = abs.(values)
         sortvalues = sort(absvalues)
@@ -122,10 +128,12 @@ function Extrema(data, nbpoints = 30)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values = allvalues[][timenumber.val, :]
         absvalues = abs.(values)
         sortvalues = sort(absvalues)
@@ -186,7 +194,7 @@ function Extrema(data, nbpoints = 30)
         Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
         figname = "Selafin Extrema "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
@@ -202,7 +210,7 @@ function Extrema(data, nbpoints = 30)
     )
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

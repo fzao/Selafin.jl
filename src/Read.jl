@@ -29,22 +29,24 @@
     # Arguments
         - `filename::String`: the path of the Telemac Selafin file
 """
-function Read(filename)
+function Read(filename, verbose=true)
 
     if typeof(filename) != String
-        println("$(Parameters.noksymbol) Parameter for the file name is not a string")
+        if verbose == true println("$(Parameters.noksymbol) Parameter for the file name is not a string") end
         return
     elseif !isfile(filename)
-        println("$(Parameters.noksymbol) Selafin file does not exist")
+        if verbose == true println("$(Parameters.noksymbol) Selafin file does not exist") end
         return
     end
 
     telemac_data = Data()
+    telemac_data.verbose = verbose
     telemac_data.filename = filename
 
     bytesize = filesize(telemac_data.filename)
     if bytesize == 0
-        error("$noksymbol The file $(telemac_data.filename) does not exist")
+        if telemac_data.verbose == true println("$noksymbol The file $(telemac_data.filename) does not exist") end
+        return
     end
     if bytesize < filesizeunit["KB"]
         readbytesize = bytesize
@@ -63,7 +65,7 @@ function Read(filename)
         sizeunit = "TB"
     end
     intreadbytesize = UInt16(round(readbytesize))
-    println("$(Parameters.oksymbol) File $(telemac_data.filename) of size: $intreadbytesize $sizeunit")
+    if telemac_data.verbose == true println("$(Parameters.oksymbol) File $(telemac_data.filename) of size: $intreadbytesize $sizeunit") end
     fid = open(telemac_data.filename, "r")
 
     # read: Title
@@ -71,7 +73,7 @@ function Read(filename)
     telemac_data.title = String(read(fid, rec))
     rec = ntoh(read(fid, Int32))
     telemac_data.title = lstrip(rstrip(telemac_data.title))
-    println("$(Parameters.oksymbol) Name of the simulation: $(telemac_data.title)")
+    if telemac_data.verbose == true println("$(Parameters.oksymbol) Name of the simulation: $(telemac_data.title)") end
 
     # read: Number of variables (tri)
     rec = ntoh(read(fid, Int32))
@@ -92,8 +94,10 @@ function Read(filename)
     # read: Forsegments (10 times 4 bytes is expected)
     fmtid = ntoh(read(fid, Int32))
     if fmtid != 40
-        println("$(Parameters.noksymbol) Unknown forsegments for data recording")
-        flush(stdout)
+        if telemac_data.verbose == true 
+            println("$(Parameters.noksymbol) Unknown forsegments for data recording")
+            flush(stdout)
+        end
         exit(fmtid)
     end
 
@@ -120,25 +124,27 @@ function Read(filename)
     else
         datehour = Dates.format(DateTime(telemac_data.idate[1], telemac_data.idate[2], telemac_data.idate[3], telemac_data.idate[4], telemac_data.idate[5], telemac_data.idate[6]), "yyyy-mm-dd HH:MM:SS")
     end
-    println("$(Parameters.oksymbol) Event start date and time: $datehour")
+    if telemac_data.verbose == true println("$(Parameters.oksymbol) Event start date and time: $datehour") end
 
     # read: Number of layers
     telemac_data.nblayers = telemac_data.iparam[7] != 0 ? telemac_data.iparam[7] : 1
     dimtelemac = telemac_data.nblayers == 1 ? "2D" : "3D"
     if dimtelemac == "2D"
-        println("$(Parameters.oksymbol) Telemac 2D results with $(telemac_data.nbvars) variables")
+        if telemac_data.verbose == true println("$(Parameters.oksymbol) Telemac 2D results with $(telemac_data.nbvars) variables") end
     else
-        println("$(Parameters.oksymbol) Telemac 3D results with $(telemac_data.nbvars) variables and $(telemac_data.nblayers) layers")
+        if telemac_data.verbose == true println("$(Parameters.oksymbol) Telemac 3D results with $(telemac_data.nbvars) variables and $(telemac_data.nblayers) layers") end
     end
-    println("$(Parameters.oksymbol) Variables are:")
-    for i = 1:telemac_data.nbvars
-        if i < 10
-            spacing = "  - "
-        else
-            spacing = " - "
+    if telemac_data.verbose == true
+        println("$(Parameters.oksymbol) Variables are:")
+        for i = 1:telemac_data.nbvars
+            if i < 10
+                spacing = "  - "
+            else
+                spacing = " - "
+            end
+            vname = lowercase(lstrip(rstrip(telemac_data.varnames[i])))
+            println("\t$i$spacing$vname")
         end
-        vname = lowercase(lstrip(rstrip(telemac_data.varnames[i])))
-        println("\t$i$spacing$vname")
     end
 
     # read: Mesh info (size)
@@ -147,8 +153,10 @@ function Read(filename)
     telemac_data.nbnodes =  ntoh(read(fid, Int32))
     nbptelem =  ntoh(read(fid, Int32))
     if (telemac_data.nblayers == 1 && nbptelem != 3) || (telemac_data.nblayers != 1 && nbptelem != 6)
-        println("$(Parameters.noksymbol) Unknown type of mesh elements")
-        flush(stdout)
+        if telemac_data.verbose == true 
+            println("$(Parameters.noksymbol) Unknown type of mesh elements")
+            flush(stdout)
+        end
         exit(nbptelem)
     end
     unknown = ntoh(read(fid, Int32))
@@ -162,7 +170,7 @@ function Read(filename)
     end
     strnbtriangles = insertcommas(telemac_data.nbtrianglesLayer)
     strnbnodes = insertcommas(telemac_data.nbnodesLayer)
-    println("$(Parameters.oksymbol) Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes")
+    if telemac_data.verbose == true println("$(Parameters.oksymbol) Unstructured mesh with $strnbtriangles triangles and $strnbnodes nodes") end
 
     # read: Mesh info (ikle connectivity)
     rec = ntoh(read(fid, Int32))
@@ -215,13 +223,13 @@ function Read(filename)
         else
             telemac_data.timestep = firststep
         end
-        println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps) with "*"$delta"*"t = $(telemac_data.timestep) s")
+        if telemac_data.verbose == true println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps) with "*"$delta"*"t = $(telemac_data.timestep) s") end
         if telemac_data.timestep != firststep
-            println("$(Parameters.exclam) The first time step is different ($(firststep) s) due to a shifted recording of results")
+            if telemac_data.verbose == true println("$(Parameters.exclam) The first time step is different ($(firststep) s) due to a shifted recording of results") end
         end
     else
         telemac_data.timestep = 0
-        println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps)")
+        if telemac_data.verbose == true println("$(Parameters.oksymbol) Number of time steps: $(telemac_data.nbsteps)") end
     end
 
     # close the Selafin file
