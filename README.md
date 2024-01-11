@@ -141,7 +141,7 @@ Six functions allow to get the values of the variables:
 
 ## Plot the variables
 
-It is possible to plot the listed variables of Telemac interactively (see video above) with the following function:
+It is possible to plot the listed variables of Telemac interactively (see video above). Use the *Plot1D()* to see the variables as time series. Other functions exist such as *Plot2D()* to visualize variables on the domain:
 
 <p align="left">
   <img src="./fig/plot_display1.png" width="200"/>
