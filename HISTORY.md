@@ -2,6 +2,7 @@
 
 ## Selafin unreleased (main branch)
 - time series plotting
+- silent mode
 
 ## Selafin 0.2 (December 2023)
 - update all dependencies to the latest versions
