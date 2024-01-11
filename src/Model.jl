@@ -22,6 +22,7 @@ module Model
     export Data
 
     mutable struct Data
+        verbose::Bool  # console printout
         markposition::Int64  # marker position for the values of variables
         filename:: String  # Selafin file path
         title::String  # name of the study
