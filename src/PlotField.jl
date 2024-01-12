@@ -29,7 +29,7 @@
 function PlotField(data)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     numu = 0
@@ -47,14 +47,16 @@ function PlotField(data)
         end
     end
     if numu == 0 || numv == 0
-        println("$(Parameters.noksymbol) No velocity field found in data")
+        if data.verbose == true println("$(Parameters.noksymbol) No velocity field found in data") end
         return
     else
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         utime = Observable(Selafin.GetAllTime(data, numu, 1))
         vtime = Observable(Selafin.GetAllTime(data, numv, 1))
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
     end
 
     # initialization
@@ -72,8 +74,10 @@ function PlotField(data)
     lenarrow = Observable(500)
 
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     fig = Figure(size = (1280, 1024))
     Axis(fig[1, 1], xlabel = "x-coordinates (m)", ylabel = "y-coordinates (m)")
@@ -93,11 +97,13 @@ function PlotField(data)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         utime[] = Selafin.GetAllTime(data, numu, layernumber.val)
         vtime[] = Selafin.GetAllTime(data, numv, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         u[] = utime[][timenumber.val, :]
         v[] = vtime[][timenumber.val, :]
         magnitude[] = vec(sqrt.(u.val .^ 2 .+ v.val .^ 2))
@@ -140,12 +146,12 @@ function PlotField(data)
         Colorbar(newfig[1, 2], limits = (minvar, maxvar), colormap = colorschoice)
         figname = "Selafin PlotField "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

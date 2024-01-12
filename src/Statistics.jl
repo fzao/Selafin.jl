@@ -29,17 +29,19 @@
 function Statistics(data)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
 
     # observables and initialization
     varnumber = Observable(1)
     layernumber = Observable(1)
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+    end
     allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
     x = range(1.0, data.nbsteps)
     y1 = @lift(vec(minimum($(allvalues), dims = 2)))
     y2 = @lift(vec(maximum($(allvalues), dims = 2)))
@@ -47,8 +49,10 @@ function Statistics(data)
     y4 = @lift(vec(median($(allvalues), dims = 2)))
 
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Pending GPU-powered 2D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     fig = Figure(size = (1280, 1024))
     ax1 = Axis(fig[1, 1], xlabel = "Time step number", ylabel = "Min")
@@ -103,10 +107,12 @@ function Statistics(data)
     varchoice = Menu(fig[3,1], prompt = "Variable:", options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         setAxisLimits()
     end
 
@@ -114,10 +120,12 @@ function Statistics(data)
     layerchoice = Menu(fig[3, 2], prompt = "Layer:", options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         setAxisLimits()
     end
 
@@ -137,12 +145,12 @@ function Statistics(data)
         scatter!(newfig[2, 2], x, y4)
         figname = "Selafin Statistics "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

@@ -34,29 +34,29 @@
 function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if notime <= 0
-        println("$(Parameters.noksymbol) The time number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number is not positive") end
         return
     elseif notime > data.nbsteps
-        println("$(Parameters.noksymbol) The time number exceeds the number of records")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number exceeds the number of records") end
         return
     end
     if noplane < 1
-        println("$(Parameters.noksymbol) The layer number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number is not positive") end
         return
     end
     if noplane > data.nblayers
-        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number exceeds the max value") end
         return
     end
 
@@ -101,11 +101,13 @@ function Get(data, novar=0, notime=0, noplane=1, figopt=false, figname=nothing)
     varname = lstrip(rstrip(data.varnames[novar]))
     timesec = (notime - 1) * data.timestep
     strtime = convertSeconds(timesec)
-    println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(strtime) elapsed) for the layer #$(noplane) with:")
-    println("\t Min. value: $minval")
-    println("\t Max. value: $maxval")
-    println("\t Mean: $meanval")
-    println("\t Median: $medval")
+    if data.verbose == true
+        println("$(Parameters.oksymbol) Read variable #$(novar) ($(varname)) at time record #$(notime) ($(strtime) elapsed) for the layer #$(noplane) with:")
+        println("\t Min. value: $minval")
+        println("\t Max. value: $maxval")
+        println("\t Mean: $meanval")
+        println("\t Median: $medval")
+    end
 
     if figopt
         fig = Figure(size = (1280, 1024))
@@ -140,22 +142,22 @@ GetAllTime(data, novar, noplane)
 """
 function GetAllTime(data, novar=0, noplane=1)
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if noplane < 1
-        println("$(Parameters.noksymbol) The layer number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number is not positive") end
         return
     end
     if noplane > data.nblayers
-        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number exceeds the max value") end
         return
     end
 
@@ -202,28 +204,28 @@ end
 function GetNode(data, node = 0, novar=0, notime=0)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if notime <= 0
-        println("$(Parameters.noksymbol) The time number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number is not positive") end
         return
     elseif notime > data.nbsteps
-        println("$(Parameters.noksymbol) The time number exceeds the number of records")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number exceeds the number of records") end
         return
     end
     if node < 1
-        println("$(Parameters.noksymbol) The node number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The node number is not positive") end
         return
     elseif node > data.nbnodes
-        println("$(Parameters.noksymbol) The node number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The node number exceeds the max value") end
         return
     end
 
@@ -246,21 +248,21 @@ end
 function GetNodeAllTime(data, node = 0, novar=0)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if node < 1
-        println("$(Parameters.noksymbol) The node number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The node number is not positive") end
         return
     elseif node > data.nbnodes
-        println("$(Parameters.noksymbol) The node number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The node number exceeds the max value") end
         return
     end
 
@@ -286,36 +288,36 @@ end
 function GetXY(data, X, Y, novar=0, notime=0, noplane=1)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if notime <= 0
-        println("$(Parameters.noksymbol) The time number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number is not positive") end
         return
     elseif notime > data.nbsteps
-        println("$(Parameters.noksymbol) The time number exceeds the number of records")
+        if data.verbose == true println("$(Parameters.noksymbol) The time number exceeds the number of records") end
         return
     end
     if noplane < 1
-        println("$(Parameters.noksymbol) The layer number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number is not positive") end
         return
     end
     if noplane > data.nblayers
-        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number exceeds the max value") end
         return
     end
 
     # get the triangle number of layer #1 (xy-coordinates are the same, whatever the layer number)
     triangle = interiorTriangle(data, X, Y)
     if isnothing(triangle)
-        println("$(Parameters.noksymbol) xy-coordinates not found")
+        if data.verbose == true println("$(Parameters.noksymbol) xy-coordinates not found") end
         return nothing
     end
 
@@ -346,29 +348,29 @@ end
 function GetXYAllTime(data, X, Y, novar=0, noplane=1)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
     if novar <= 0
-        println("$(Parameters.noksymbol) The variable number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number is not positive") end
         return
     elseif novar > data.nbvars
-        println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables")
+        if data.verbose == true println("$(Parameters.noksymbol) The variable number exceeds the number of recorded variables") end
         return
     end
     if noplane < 1
-        println("$(Parameters.noksymbol) The layer number is not positive")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number is not positive") end
         return
     end
     if noplane > data.nblayers
-        println("$(Parameters.noksymbol) The layer number exceeds the max value")
+        if data.verbose == true println("$(Parameters.noksymbol) The layer number exceeds the max value") end
         return
     end
 
     # get the triangle number of layer #1 (xy-coordinates are the same, whatever the layer number)
     triangle = interiorTriangle(data, X, Y)
     if isnothing(triangle)
-        println("$(Parameters.noksymbol) xy-coordinates not found")
+        if data.verbose == true println("$(Parameters.noksymbol) xy-coordinates not found") end
         return nothing
     end
 
