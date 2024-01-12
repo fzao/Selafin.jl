@@ -29,23 +29,27 @@
 function Histogram(data)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
 
     # observables
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+    end
     allvalues = Observable(Selafin.GetAllTime(data, 1, 1))
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
     values = Observable(allvalues[][1, :])
     varnumber = Observable(1)
     layernumber = Observable(1)
     timenumber = Observable(1)
 
     # search for the axis limits of all histograms
-    print("$(Parameters.hand) Histogram bounds estimation...")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Histogram bounds estimation...")
+        flush(stdout)
+    end
     nbins = 50  # clearly not optimal?
     xybounds = zeros(Float64, data.nbvars, data.nblayers, 3)
     xybounds[:, :, 1] .= Inf  # min(min(x(t)))
@@ -86,11 +90,13 @@ function Histogram(data)
         end
     end
     close(fid)
-    println("\r$(Parameters.oksymbol) Histogram bounds estimation...Done!")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Histogram bounds estimation...Done!") end
 
     # figure
-    print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Pending GPU-powered histogram... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     fig = Figure(size = (1280, 1024))
     ax = Axis(fig[1, 1], xlabel = "Values", ylabel = "Frequency")
@@ -108,10 +114,12 @@ function Histogram(data)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
@@ -120,10 +128,12 @@ function Histogram(data)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values[] = allvalues[][timenumber.val, :]
         limits!(ax, xybounds[varnumber.val, layernumber.val, 1], xybounds[varnumber.val, layernumber.val, 2], 0, xybounds[varnumber.val, layernumber.val, 3])
     end
@@ -146,12 +156,12 @@ function Histogram(data)
         hist!(values, bins = nbins, color = :gray, strokewidth = 1, strokecolor = :black)
         figname = "Selafin Histogram "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

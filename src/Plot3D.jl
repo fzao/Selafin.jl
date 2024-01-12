@@ -29,7 +29,7 @@
 function Plot3D(data, warpcoef = 1.)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
 
@@ -41,7 +41,7 @@ function Plot3D(data, warpcoef = 1.)
         end
     end
     if numbot == 0
-        println("$(Parameters.noksymbol) No bottom elevation found in data")
+        if data.verbose == true println("$(Parameters.noksymbol) No bottom elevation found in data") end
         return
     else
         z = Selafin.Get(data, numbot, 1, 1)
@@ -49,15 +49,17 @@ function Plot3D(data, warpcoef = 1.)
     end
 
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 3D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true
+        print("$(Parameters.hand) Pending GPU-powered 3D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     nodes = [Point3f0(data.x[i], data.y[i], z[i]) for i in 1:data.nbnodesLayer]
     tris = data.ikle[1:data.nbtrianglesLayer, 1:3]
     tri = [GLTriangleFace(tris[i, 1], tris[i, 2], tris[i, 3]) for i in 1:data.nbtrianglesLayer]
     mesh(nodes, tri, color=last.(nodes), figure = (size = (1280, 1024),)) |> display
 
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end

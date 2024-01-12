@@ -34,7 +34,7 @@
 function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualval)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) The first parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) The first parameter is not a Data struct") end
         return
     end
 
@@ -61,12 +61,14 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
     maxqual = round(maximum(triquality), digits = 2)
     histo = fit(StatsBase.Histogram, triquality, 0:0.1:1.0)
     histqual = histo.weights
-    println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
-    println("\t$(Parameters.smallsquare) Triangles")
+    if data.verbose == true
+        println("$(Parameters.oksymbol) Mesh quality (Min: $minqual, Mean: $meanqual, Max: $maxqual)")
+        println("\t$(Parameters.smallsquare) Triangles")
+    end
     for i = 1:10
         a = round((i - 1) * 0.1, digits = 1)
         b = round(i * 0.1, digits = 1)
-        println("\t$a...$b: $(histqual[i])")
+        if data.verbose == true println("\t$a...$b: $(histqual[i])") end
     end
 
     if figopt
@@ -185,11 +187,13 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
             perimeter += Distance.euclidean(data.x[pt1], data.y[pt1], data.x[pt2], data.y[pt2])
         end
         perimeter = round(perimeter * 1e-3, digits = 1)
-        println("$(Parameters.oksymbol) Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km")
+        if data.verbose == true println("$(Parameters.oksymbol) Study area surface: $area km$(Parameters.superscripttwo) and perimeter: $perimeter km") end
 
         # plot
-        print("$(Parameters.hand) Pending GPU-powered graphs... (this may take a while)")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Pending GPU-powered graphs... (this may take a while)")
+            flush(stdout)
+        end
         GLMakie.closeall()
         fig = Figure(size = (1280, 1024))
         ax1, l1 = lines(fig[1, 1], ptxall, ptyall)
@@ -222,7 +226,7 @@ function Quality(data, figopt=false, figname=nothing, quaval=Parameters.minqualv
             save(figname, fig, px_per_unit = 2)
         end
         display(fig)
-        println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
     end
 
     return triquality

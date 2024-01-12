@@ -29,14 +29,16 @@
 function Plot1D(data)
 
     if typeof(data) != Data
-        println("$(Parameters.noksymbol) Parameter is not a Data struct")
+        if data.verbose == true println("$(Parameters.noksymbol) Parameter is not a Data struct") end
         return
     end
 
     # observables
-    print("$(Parameters.hand) Memory caching...")
-    flush(stdout)
-    println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    if data.verbose == true
+        print("$(Parameters.hand) Memory caching...")
+        flush(stdout)
+        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+    end
     varnumber = Observable(1)
     layernumber = Observable(1)
     nodenum = Observable(1)
@@ -44,8 +46,10 @@ function Plot1D(data)
     values = Observable(allvalues[][:, nodenum[]])
     
     # figure
-    print("$(Parameters.hand) Pending GPU-powered 1D plot... (this may take a while)")
-    flush(stdout)
+    if data.verbose == true 
+        print("$(Parameters.hand) Pending GPU-powered 1D plot... (this may take a while)")
+        flush(stdout)
+    end
     GLMakie.closeall()
     xs = 1:1:data.nbsteps
     fig = Figure(size = (1280, 1024))
@@ -59,15 +63,17 @@ function Plot1D(data)
         if (usernode >= 1) & (usernode <= data.nbnodes)
             nodenum[] = usernode
             xcoord = data.x[usernode]; ycoord = data.y[usernode]
-            println("Node = $(usernode) (X,Y) = ($(xcoord), $(ycoord))")
-            print("$(Parameters.hand) Memory caching...")
-            flush(stdout)
+            if data.verbose == true
+                println("Node = $(usernode) (X,Y) = ($(xcoord), $(ycoord))")
+                print("$(Parameters.hand) Memory caching...")
+                flush(stdout)
+            end
             allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-            println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+            if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
             values[] = allvalues[][:, nodenum[]]
             ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
         else
-            println("\r$(Parameters.noksymbol) Wrong node number!                    ")
+            if data.verbose == true println("\r$(Parameters.noksymbol) Wrong node number!                    ") end
         end
     end
 
@@ -75,10 +81,12 @@ function Plot1D(data)
     varchoice = Menu(fig, options = data.varnames, i_selected = 1)
     on(varchoice.selection) do selected_variable
         varnumber[] = findall(occursin.(selected_variable, data.varnames))[1]
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values[] = allvalues[][:, nodenum[]]
         ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
     end
@@ -87,10 +95,12 @@ function Plot1D(data)
     layerchoice = Menu(fig, options = 1:data.nblayers, i_selected = 1)
     on(layerchoice.selection) do selected_layer
         layernumber[] = selected_layer
-        print("$(Parameters.hand) Memory caching...")
-        flush(stdout)
+        if data.verbose == true
+            print("$(Parameters.hand) Memory caching...")
+            flush(stdout)
+        end
         allvalues[] = Selafin.GetAllTime(data, varnumber.val, layernumber.val)
-        println("\r$(Parameters.oksymbol) Memory caching...Done!                    ")
+        if data.verbose == true println("\r$(Parameters.oksymbol) Memory caching...Done!                    ") end
         values[] = allvalues[][:, nodenum[]]
         ylims!(ax, minimum(values.val)-Parameters.eps, maximum(values.val)+Parameters.eps)
     end
@@ -114,12 +124,12 @@ function Plot1D(data)
         lines!(newfig[1, 1], xs, values)
         figname = "Selafin Plot1D "*replace(replace(string(Dates.now()), 'T' => " at "), ':' => '.')*".png"
         save(figname, newfig, px_per_unit = 2)
-        println("$(Parameters.oksymbol) Figure saved")
+        if data.verbose == true println("$(Parameters.oksymbol) Figure saved") end
         # display(fig)
     end
 
     display(fig)
-    println("\r$(Parameters.oksymbol) Succeeded!                                                  ")
+    if data.verbose == true println("\r$(Parameters.oksymbol) Succeeded!                                                  ") end
 
     return nothing
 end
