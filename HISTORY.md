@@ -1,6 +1,7 @@
 # Breaking updates and feature summaries across releases
 
 ## Selafin unreleased (main branch)
+- fix wrong default color info
 - time series plotting
 - silent mode
 
