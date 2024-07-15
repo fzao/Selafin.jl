@@ -91,7 +91,7 @@ function Plot2D(data)
     end
 
     # menu (colorscheme)
-    colorchoice = Menu(fig, options = Parameters.scientific, i_selected = 25)
+    colorchoice = Menu(fig, options = reverse(Parameters.scientific))
     on(colorchoice.selection) do selected_color
         colorschoice[] = selected_color
     end
